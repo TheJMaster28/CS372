@@ -2,63 +2,146 @@
 // Lab2
 #include <iostream>
 #include <vector>
+#include <string>
 using namespace std;
 
-vector<bool> muliply_itr(vector<bool> & x, vector<bool> & y) {
+
+void printVector( vector<bool>  &a) {
+    for ( int i = a.size(); i >= 0; i--) {
+        cout<<a[i]<<' ';
+    }
+}
+
+// adds two binary numbers in a boolean vector
+vector<bool> addingBinary( vector<bool> &x, vector<bool> &y) {
+    vector<bool> z;
+    bool carry=0;
+    for ( int k = 0; ( k < x.size() || k < y.size() ); k++) {
+                z.push_back(((x[k] ^ y[k] ^ carry )));
+                carry = (( x[k] & y[k] ) | (x[k] & carry)) | (y[k] & carry);
+    }
+    return z;
+
+}
+
+// multiples to boolean vectors
+vector<bool> muliply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
     vector<bool> z;
     vector<bool> inter;
     bool carry;
+    
     // fills vector with zeros to inlize vector
     z.assign(x.size() + y.size(), 0);
-    inter.assign(z.size(), 0);
+    
+    // goes through each bit from y byte
     for ( int i = 0; i < y.size(); i++ ) {
+        
+        // makes intermedite value zero
+        inter.assign(x.size(), 0);
+        
+        // if y's bit is one, then copy x to intermedite
         if ( y[i] ) {
             for ( int k = 0; k < x.size(); k++) {
                 for ( int l = 0; l < x.size(); l++) {
                     inter[l] = x[l];
-                }
-                for ( int l = 0; l < k; l++) {
+                } 
+            }
+            
+            // add zeros to least significant side for rule of multipliction
+            for ( int l = 0; l < i; l++) {
                     inter.insert(inter.begin(), 0);
-                }
-                
             }
-            for ( int k = 0; k < z.size(); k++) {
-                z[k] = ((z[k] ^ inter[k] ^ carry ));
-                carry = (( z[k] & inter[k] ) | (z[k] & carry)) | (inter[k] & carry);
-            }
-        }
-        else {
-            for ( int k = 0; k < x.size(); k++) {
-                for ( int l = 0; l < x.size(); l++) {
-                    inter[l] = 0;
-                }
-                for ( int l = 0; l < k; l++) {
-                    inter.insert(inter.begin(), 0);
-                }
-                
-            }
-            for ( int k = 0; k < z.size(); k++) {
-                z[k] = ((z[k] ^ inter[k] ^ carry ));
-                carry = (( z[k] & inter[k] ) | (z[k] & carry)) | (inter[k] & carry);
-            }
+            
+            // add vectors together
+            vector<bool> temp;
+            temp=addingBinary(z,inter);
+            z=temp;
 
+            // show values for debugging
+            if ( debug) {
+                cout<<"Intermedite: ";
+                printVector(inter);
+                cout<<"\n";
+                cout<<"Z: ";
+                printVector(z);
+                cout<<"\n";
+            }
         }
-       
     }
 
     return z;
 }
 
+// test funtion for muliply_itr
+void testingMuliply_itr() {
+    string byte1;
+    string byte2;
+    string answer;
+    bool passed = true;
+    bool debug;
+    
+    // get input from user
+    cout<<"Enter Byte 1: "<<endl;
+    cin>>byte1;
+
+    cout<<"Enter Byte 2: "<<endl;
+    cin>>byte2;
+
+    cout<<"Enter Answer: "<<endl;
+    cin>>answer;
+
+    cout<<"Debug?"<<endl;
+    cin>>debug;
+
+    vector<bool> x,y,z;
+
+    // convert string to boolean vector
+    for( int i = byte1.length()-1; i >= 0; i-- ) {
+        x.push_back( byte1.at(i) == '1' );
+    }
+
+    for ( int i = byte2.length()-1; i >= 0; i--) {
+        y.push_back( byte2.at(i) == '1' );
+    }
+
+    for ( int i = answer.length()-1; i >= 0; i--) {
+        z.push_back( answer.at(i) == '1' );
+    }
+    
+    // do Muliply_itr function
+    vector<bool> result = muliply_itr(x,y,debug);
+
+    // make both input vector and result vector same size for easy comparing
+    while ( result.size() != z.size() ) {
+        if ( z.size() > result.size() ) {
+            result.push_back(0);
+        }
+        else {
+            z.push_back(0);
+        }
+    }
+
+    // compare values for mismatch bits
+    for ( int i = 0; i < z.size(); i++ ) {
+        if ( result[i] != z[i] ) {
+            passed = false;
+            break;
+        }
+    }
+
+    if ( passed ) {
+        cout<<"muliply_itr has Passed!"<<endl;
+    }
+    else {
+        cout<<"muliply_itr has Failed"<<endl;
+        cout<<"Result: ";
+        printVector(result);
+        cout<<endl;
+    }
+    
+}
 
 int main () {
-    vector<bool> x = { 0,1,0,1};
-    vector<bool> y = {1,1};
-    vector<bool> answer = { 0,1,1,1,0};
-
-    vector<bool> result = muliply_itr(x,y);
-    cout<<"Result: ";
-    for ( int i = result.size(); i > 0; i--) {
-        cout<<result[i]<<" ";
-    }
-    cout<<endl;
+    testingMuliply_itr();
+    return 0;
 }
