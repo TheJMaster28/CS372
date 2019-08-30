@@ -17,15 +17,15 @@ vector<bool> addingBinary( vector<bool> &x, vector<bool> &y) {
     vector<bool> z;
     bool carry=0;
     for ( int k = 0; ( k < x.size() || k < y.size() ); k++) {
-                z.push_back(((x[k] ^ y[k] ^ carry )));
-                carry = (( x[k] & y[k] ) | (x[k] & carry)) | (y[k] & carry);
+        z.push_back(((x[k] ^ y[k] ^ carry )));
+        carry = (( x[k] & y[k] ) | (x[k] & carry)) | (y[k] & carry);
     }
     return z;
 
 }
 
-// multiples to boolean vectors
-vector<bool> muliply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
+// multiples to boolean vectors itleriave
+vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
     vector<bool> z;
     vector<bool> inter;
     bool carry;
@@ -72,8 +72,16 @@ vector<bool> muliply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
     return z;
 }
 
+
+vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
+    vector<bool> z;
+    
+
+}
+
+
 // test funtion for muliply_itr
-void testingMuliply_itr() {
+void testingMuliply() {
     string byte1;
     string byte2;
     string answer;
@@ -109,7 +117,7 @@ void testingMuliply_itr() {
     }
     
     // do Muliply_itr function
-    vector<bool> result = muliply_itr(x,y,debug);
+    vector<bool> result = multiply_itr(x,y,debug);
 
     // make both input vector and result vector same size for easy comparing
     while ( result.size() != z.size() ) {
@@ -141,7 +149,96 @@ void testingMuliply_itr() {
     
 }
 
+bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
+
+    bool passed = true;
+
+    // Example 1
+    // TO-DO: if failed, print out error message
+    vector<bool> byte1 = {1,1};
+    vector<bool> byte2 = {1,0,1};
+    vector<bool> answer= {1,1,1,1};
+
+    vector<bool> result = mul(byte1,byte2,0);
+
+    while ( result.size() != answer.size() ) {
+            if ( answer.size() > result.size() ) {
+                result.push_back(0);
+            }
+            else {
+                answer.push_back(0);
+            }
+    }
+
+    for ( int i = 0; i < result.size(); i++ ) {
+        if ( result[i] != answer[i] ) {
+            passed = false;
+            cout<<"Error, Test Case 1 has Failed"<<endl;
+            break;
+        }
+    }
+    
+    // Example 2
+    // TO-DO: if failed, print out error message
+    byte1 = {1,0,0,1,0,1,0,1,0,1};
+    byte2 = {1,0,0,1,1,1,1,0,1,0,1,0,0,1};
+    answer= {1,0,0,0,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,0,0,1,1};
+
+    result = mul(byte1,byte2,0);
+
+    while ( result.size() != answer.size() ) {
+            if ( answer.size() > result.size() ) {
+                result.push_back(0);
+            }
+            else {
+                answer.push_back(0);
+            }
+    }
+
+    for ( int i = 0; i < result.size(); i++ ) {
+        if ( result[i] != answer[i] ) {
+            passed = false;
+            cout<<"Error, Test Case 2 has Failed"<<endl;
+            break;
+        }
+
+    }
+    
+    // Example 3
+    // TO-DO: if failed, print out error message
+
+    // Example 4
+    // TO-DO: if failed, print out error message
+    
+    // Example 5
+    // TO-DO: if failed, print out error message
+    return passed;
+}
+
+bool testall() {
+    // test the iterative solution:
+    bool passed = test(multiply_itr);
+    // TO-DO: print out success / failure messages
+    if ( passed ) {
+        cout<<"Tests have passed for multiply_itr()"<<endl;
+    }
+    else{
+        cout<<"Tests have failed for multiply_itr()"<<endl;
+    }
+    // test the divide-and-conquer solution:
+    passed = test(multiply);
+    // TO-DO: print out success / failure messages
+    if ( passed ) {
+        cout<<"Tests have passed for multiply()"<<endl;
+    }
+    else{
+        cout<<"Tests have failed for multiply()"<<endl;
+    }
+    return passed;
+}
+
 int main () {
-    testingMuliply_itr();
+    // testingMuliply();
+    testall();
     return 0;
 }
