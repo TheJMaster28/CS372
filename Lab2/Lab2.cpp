@@ -76,7 +76,7 @@ vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
 vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
     vector<bool> z;
     
-
+    return z;
 }
 
 
