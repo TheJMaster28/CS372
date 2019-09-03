@@ -476,9 +476,22 @@ int main () {
 
 /*** R
 n <- 10
-x <- sample(c(0,1), n, replace=TRUE)
-y <- sample(c(0,1), n, replace=TRUE)
-system.time(multiply(x, y))[["user.self"]]
-system.time(multiply_itr(x, y))[["user.self"]]
+runtimeI <- vector(length = n)
+runtimeR <- vector(length = n)
+ns <- vector(length = n)
+for ( k in 1:n ) {
+  ns[k] = n*k*k
+  x <- sample(c(0,1), ns[k], replace=TRUE)
+  y <- sample(c(0,1), ns[k], replace=TRUE)
+  runtimeR[k] = system.time(multiply(x, y,0))[["user.self"]]
+  runtimeI[k] = system.time(multiply_itr(x, y,0))[["user.self"]]
+}
 
+par(mfrow=c(1,2))
+
+plot(ns, runtimeI, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
+grid(col="blue")
+
+plot(ns, runtimeR, type="b", xlab="n", ylab="runtime (second)", main = "Multiply")
+grid(col="blue")
  */
