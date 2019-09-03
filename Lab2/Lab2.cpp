@@ -486,9 +486,21 @@ for ( k in 1:n ) {
   runtimeR[k] = system.time(multiply(x, y,0))[["user.self"]]
   runtimeI[k] = system.time(multiply_itr(x, y,0))[["user.self"]]
 }
+linearx <- vector(length = 2)
+lineary <- vector(length = 2)
+linearx[0] <- ns[0]
+lineary[0] <- runtimeI
 
 par(mfrow=c(1,2))
 
+linearx <- vector(length = 2)
+lineary <- vector(length = 2)
+linearx[0] <- ns[0]
+lineary[0] <- runtimeI[0]
+linearx[0] <- ns[10]
+lineary[0] <- runtimeI[10]
+
+plot(linearx, lineary, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
 plot(ns, runtimeI, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
 grid(col="blue")
 
