@@ -3,11 +3,12 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <math.h>
 using namespace std;
 
 
 void printVector( vector<bool>  &a) {
-    for ( int i = a.size(); i >= 0; i--) {
+    for ( int i = a.size()-1; i >= 0; i--) {
         cout<<a[i]<<' ';
     }
 }
@@ -16,35 +17,80 @@ void printVector( vector<bool>  &a) {
 vector<bool> addingBinary( vector<bool> &x, vector<bool> &y) {
     vector<bool> z;
     bool carry=0;
-    for ( int k = 0; ( k < x.size() || k < y.size() || carry ); k++) {
-        z.push_back(((x[k] ^ y[k] ^ carry )));
-        carry = (( x[k] & y[k] ) | (x[k] & carry)) | (y[k] & carry);
+
+    vector<bool> xTemp = x;
+    vector<bool> yTemp = y;
+
+    while ( xTemp.size() != yTemp.size() ) {
+        if ( xTemp.size() > yTemp.size() ) {
+            yTemp.push_back(0);
+        }
+        else {
+            xTemp.push_back(0);
+        }
+
     }
+
+    for ( int k = 0; ( k < xTemp.size() || k < yTemp.size() ); k++) {
+        z.push_back(((xTemp[k] ^ yTemp[k] ^ carry )));
+        carry = (( xTemp[k] & yTemp[k] ) | (xTemp[k] & carry)) | (yTemp[k] & carry);
+    }
+
+    if ( carry ) {
+        z.push_back(1);
+    }
+    
     return z;
 
 }
 
 vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
-    vector<bool>yComplement;
-    yComplement.assign(y.size(), 0);
-    for( int i = 0; i < y.size(); i++) {
-        yComplement[i] = (y[i] != 1);
+
+    vector<bool> xTemp = x;
+    vector<bool> yTemp = y;
+
+    while ( xTemp.size() != yTemp.size() ) {
+        if ( xTemp.size() > yTemp.size() ) {
+            yTemp.push_back(0);
+        }
+        else {
+            xTemp.push_back(0);
+        }
+
+    }
+    
+    vector<bool> yComplement;
+    
+    yComplement.assign(yTemp.size(), 0);
+    
+    for( int i = 0; i < yTemp.size(); i++) {
+        yComplement[i] = (yTemp[i] != 1);
     }
 
-    vector<bool> one;
-    for ( int i = 0; i < yComplement.size(); i++) {
-        one.push_back(1);
+    vector<bool> one = {1};
+    
+    while ( one.size() != x.size() ) {
+        one.push_back(0);
     }
-
+    
     vector<bool> z;
     bool carry=0;
-    
+
     for ( int k = 0; ( k < yComplement.size() || k < one.size()); k++) {
         z.push_back(((yComplement[k] ^ one[k] ^ carry )));
         carry = (( yComplement[k] & one[k] ) | (yComplement[k] & carry)) | (one[k] & carry);
     }
 
-    return z;
+    carry=0;
+
+    vector<bool> result;
+
+    for ( int k = 0; ( k < z.size() || k < x.size()); k++) {
+        result.push_back(((z[k] ^ x[k] ^ carry )));
+        carry = (( z[k] & x[k] ) | (z[k] & carry)) | (x[k] & carry);
+    }
+
+    return result;
 }
 
 // multiples to boolean vectors itleriave
@@ -98,7 +144,9 @@ vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
 
 
 vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
+
     vector<bool> z;
+    
     while ( x.size() != y.size() ) {
         if ( x.size() > y.size() ) {
             y.push_back(0);
@@ -106,36 +154,32 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
         else {
             x.push_back(0);
         }
+
     }
     
     if ( x.size() == 1 && y.size() == 1 ) {
         z.push_back(0);
         z[0] = x[0] & y[0];
+        // cout<<"Size of One, Outta of Here Sucker"<<endl;
         return z; 
+    }
+
+    if ( x.size() % 2 != 0 ) {
+        x.push_back(0);
+        y.push_back(0);
     }
 
     vector<bool> xR;
     vector<bool> xL;
     vector<bool> yR;
     vector<bool> yL;
-    int xRsize, xLsize, yRsize, yLsize;
-    if ( x.size() % 2 != 0 ) {
-        xLsize = x.size() / 2;
-        xRsize = x.size() - xLsize;
-    }
-    else {
-        xLsize = x.size() / 2;
-        xRsize = x.size() / 2;
-    }
 
-    if ( y.size() % 2 != 0 ) {
-        yLsize = y.size() / 2;
-        yRsize = y.size() - yLsize;
-    }
-    else {
-        yLsize = y.size() / 2;
-        yRsize = y.size() / 2;
-    }
+    int xRsize, xLsize, yRsize, yLsize;
+
+    xRsize = floor(x.size()/2.0);
+    yRsize = floor(y.size()/2.0);
+    xLsize = ceil(y.size()/2.0);
+    yLsize = ceil(y.size()/2.0);
 
     xR.assign(xRsize, 0);
     xL.assign(xLsize, 0);
@@ -157,53 +201,76 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
             yL[i - yRsize] = y[i];
         }
     }
-
+    
     vector<bool> P1 = multiply(xL, yL,0);
     vector<bool> P2 = multiply(xR, yR,0);
     vector<bool> temp = addingBinary(xL,xR);
     vector<bool> temp1 = addingBinary(yL,yR);
     vector<bool> P3 = multiply( temp, temp1,0);
-    
-    // store P1 * 2^n + (P3 - P1 - P2) * 2^(n/2) + P2 into z
-    
-    // temp = P1;
-    temp.assign(P1.size(), 0);
-    for ( int i = 0; i < P1.size(); i++) {
-        temp.push_back(P1[i]);
-    }
 
+    xR.clear();
+    xL.clear();
+    yR.clear();
+    yL.clear();
 
+    temp.clear();
+    temp = P1;
+
+    // 
     for ( int i = 0; i < x.size(); i++ ) {
         temp.insert(temp.begin(),0);
     }
     
-    vector<bool> temp3 = subtractingBinary(P1, P2);
+    // 
+    temp1.clear();
+    temp1 = subtractingBinary(P3,P1);
     
-    temp1 = subtractingBinary(P3, temp3);
+    // 
+    vector<bool> temp2 = subtractingBinary(temp1,P2);
 
+    // 
     for ( int i = 0; i < x.size()/2; i++ ) {
-        temp1.insert(temp1.begin(),0);
+        temp2.insert(temp2.begin(),0);
     }
-    temp3 = addingBinary(temp1, P2);
-    z = addingBinary( temp, temp3 );
+    
+    // 
+    temp1.clear();
+    // adding problem 36 + 9
+    temp1 = addingBinary( temp2, P2 );
+    
+    // 
+    z = addingBinary( temp, temp1 );
+    // z= temp1;
     
     return z;
 }
 
 
-// test funtion for muliply_itr
-
+// test funtion for muliply functions
 bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
 
     bool passed = true;
 
     // Example 1
     // TO-DO: if failed, print out error message
-    vector<bool> byte1 = {1,1};
-    vector<bool> byte2 = {1,0,1};
-    vector<bool> answer= {1,1,1,1};
-    
-    vector<bool> result = mul(byte1,byte2,0);
+    vector<bool> byte1 = {1,1,1,1};
+    vector<bool> byte2 = {1,1};
+    vector<bool> answer= { 1,0,1,1,0,1, };
+
+// 111111011010101010111110001 – 11111111 = 0111111011010101010011110010
+
+    // vector<bool> x = {0,0,1,0,0,1};
+    // vector<bool> y = {1,0,0,1};
+    // vector<bool> result = addingBinary(x,y);
+    // cout<<"X: ";
+    // printVector(x);
+    // cout<<endl<<"Y: ";
+    // printVector(y);
+    // cout<<endl<<"Result: ";
+    // printVector(result);
+    // cout<<endl;
+
+    vector<bool> result = mul(byte2,byte1,0);
     
     while ( result.size() != answer.size() ) {
             if ( answer.size() > result.size() ) {
@@ -218,7 +285,7 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
         if ( result[i] != answer[i] ) {
             passed = false;
             cout<<"Error, Test Case 1 has Failed"<<endl;
-            cout<<"Reult: ";
+            cout<<"Result: ";
             printVector(result);
             cout<<endl;
             cout<<"Answer: ";
@@ -230,12 +297,13 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     
     // Example 2
     // TO-DO: if failed, print out error message
-    byte1 = {1,0,0,1,0,1,0,1,0,1};
-    byte2 = {1,0,0,1,1,1,1,0,1,0,1,0,0,1};
-    answer= {1,0,0,0,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,0,0,1,1};
+    byte1 = {1,0,1,1,1,1,1,1};
+    byte2 = {1,1,1,1,1,1,1,1};
+    answer= {1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0};
 
     result = mul(byte1,byte2,0);
 
+    
     while ( result.size() != answer.size() ) {
             if ( answer.size() > result.size() ) {
                 result.push_back(0);
@@ -244,18 +312,52 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
                 answer.push_back(0);
             }
     }
-
+    
     for ( int i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
             cout<<"Error, Test Case 2 has Failed"<<endl;
+            cout<<"Result: ";
+            printVector(result);
+            cout<<endl;
+            cout<<"Answer: ";
+            printVector(answer);
+            cout<<endl;
             break;
         }
-
     }
     
     // Example 3
     // TO-DO: if failed, print out error message
+
+    // byte1 = {1,0,0,1,0,1,0,1,0,1};
+    // byte2 = {1,0,0,1,1,1,1,0,1,0,1,0,0,1};
+    // answer= {1,0,0,0,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,0,0,1,1};
+
+    // result = mul(byte1,byte2,0);
+
+    //   while ( result.size() != answer.size() ) {
+    //         if ( answer.size() > result.size() ) {
+    //             result.push_back(0);
+    //         }
+    //         else {
+    //             answer.push_back(0);
+    //         }
+    // }
+    
+    // for ( int i = 0; i < result.size(); i++ ) {
+    //     if ( result[i] != answer[i] ) {
+    //         passed = false;
+    //         cout<<"Error, Test Case 3 has Failed"<<endl;
+    //         cout<<"Result: ";
+    //         printVector(result);
+    //         cout<<endl;
+    //         cout<<"Answer: ";
+    //         printVector(answer);
+    //         cout<<endl;
+    //         break;
+    //     }
+    // }
 
     // Example 4
     // TO-DO: if failed, print out error message
