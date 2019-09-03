@@ -5,7 +5,7 @@
 #include <string>
 #include <math.h>
 using namespace std;
-
+// [[Rcpp::plugins(cpp11)]]
 
 void paddingVector( vector<bool> &x, vector<bool> &y ) {
 
@@ -37,7 +37,7 @@ vector<bool> addingBinary( vector<bool> &x, vector<bool> &y) {
 
     paddingVector(xTemp, yTemp);
 
-    for ( int k = 0; ( k < xTemp.size() || k < yTemp.size() ); k++) {
+    for ( size_t k = 0; ( k < xTemp.size() || k < yTemp.size() ); k++) {
         z.push_back(((xTemp[k] ^ yTemp[k] ^ carry )));
         carry = (( xTemp[k] & yTemp[k] ) | (xTemp[k] & carry)) | (yTemp[k] & carry);
     }
@@ -61,7 +61,7 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
     
     yComplement.assign(yTemp.size(), 0);
     
-    for( int i = 0; i < yTemp.size(); i++) {
+    for( size_t i = 0; i < yTemp.size(); i++) {
         yComplement[i] = (yTemp[i] != 1);
     }
 
@@ -74,7 +74,7 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
     vector<bool> z;
     bool carry=0;
 
-    for ( int k = 0; ( k < yComplement.size() || k < one.size()); k++) {
+    for ( size_t k = 0; ( k < yComplement.size() || k < one.size()); k++) {
         z.push_back(((yComplement[k] ^ one[k] ^ carry )));
         carry = (( yComplement[k] & one[k] ) | (yComplement[k] & carry)) | (one[k] & carry);
     }
@@ -85,7 +85,7 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
 
     paddingVector(xTemp, z);
 
-    for ( int k = 0; ( k < z.size() || k < xTemp.size()); k++) {
+    for ( size_t     k = 0; ( k < z.size() || k < xTemp.size()); k++) {
         result.push_back(((z[k] ^ xTemp[k] ^ carry )));
         carry = (( z[k] & xTemp[k] ) | (z[k] & carry)) | (xTemp[k] & carry);
     }
@@ -103,21 +103,21 @@ vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
     z.assign(x.size() + y.size(), 0);
     
     // goes through each bit from y byte
-    for ( int i = 0; i < y.size(); i++ ) {
+    for ( size_t i = 0; i < y.size(); i++ ) {
         
         // makes intermedite value zero
         inter.assign(x.size(), 0);
         
         // if y's bit is one, then copy x to intermedite
         if ( y[i] ) {
-            for ( int k = 0; k < x.size(); k++) {
-                for ( int l = 0; l < x.size(); l++) {
+            for ( size_t k = 0; k < x.size(); k++) {
+                for ( size_t l = 0; l < x.size(); l++) {
                     inter[l] = x[l];
                 } 
             }
             
             // add zeros to least significant side for rule of multipliction
-            for ( int l = 0; l < i; l++) {
+            for ( size_t l = 0; l < i; l++) {
                     inter.insert(inter.begin(), 0);
             }
             
@@ -177,15 +177,15 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
     yR.assign(yRsize, 0);
     yL.assign(yLsize, 0);
     
-    for ( int i = 0; i < x.size() && i < y.size(); i++ ) {
-        if ( i < xRsize ) {
+    for ( size_t i = 0; i < x.size() && i < y.size(); i++ ) {
+        if ( (int)i < xRsize ) {
             xR[i] = x[i];
         }
         else {
             xL[i - xRsize] = x[i];
         }
         
-        if ( i < yRsize ) {
+        if ( (int)i < yRsize ) {
             yR[i] = y[i];
         }
         else {
@@ -208,7 +208,7 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
     temp = P1;
 
     // 
-    for ( int i = 0; i < x.size(); i++ ) {
+    for ( size_t i = 0; i < x.size(); i++ ) {
         temp.insert(temp.begin(),0);
     }
     
@@ -220,7 +220,7 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
     vector<bool> temp2 = subtractingBinary(temp1,P2);
 
     // 
-    for ( int i = 0; i < x.size()/2; i++ ) {
+    for ( size_t i = 0; i < x.size()/2; i++ ) {
         temp2.insert(temp2.begin(),0);
     }
     
@@ -252,7 +252,7 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     
     paddingVector(result, answer);
 
-    for ( int i = 0; i < result.size(); i++ ) {
+    for ( size_t i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
             cout<<"Error, Test Case 1 has Failed"<<endl;
@@ -276,7 +276,7 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
 
     paddingVector(result, answer);
 
-    for ( int i = 0; i < result.size(); i++ ) {
+    for ( size_t i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
             cout<<"Error, Test Case 2 has Failed"<<endl;
@@ -301,7 +301,7 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     
     paddingVector(result, answer);
 
-    for ( int i = 0; i < result.size(); i++ ) {
+    for ( size_t i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
             cout<<"Error, Test Case 3 has Failed"<<endl;
@@ -327,7 +327,7 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     paddingVector(result, answer);
 
     
-    for ( int i = 0; i < result.size(); i++ ) {
+    for ( size_t i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
             cout<<"Error, Test Case 4 has Failed"<<endl;
@@ -353,7 +353,7 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
 
     paddingVector(result, answer);
 
-    for ( int i = 0; i < result.size(); i++ ) {
+    for ( size_t i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
             cout<<"Error, Test Case 4 has Failed"<<endl;
@@ -475,6 +475,10 @@ int main () {
 //--------------------------------------------------------------
 
 /*** R
+library(ggplot2)
+library(gridExtra)
+library(grid)
+
 n <- 10
 runtimeI <- vector(length = n)
 runtimeR <- vector(length = n)
@@ -486,24 +490,39 @@ for ( k in 1:n ) {
   runtimeR[k] = system.time(multiply(x, y,0))[["user.self"]]
   runtimeI[k] = system.time(multiply_itr(x, y,0))[["user.self"]]
 }
-linearx <- vector(length = 2)
-lineary <- vector(length = 2)
-linearx[0] <- ns[0]
-lineary[0] <- runtimeI
+theo <- vector(length = n)
 
-par(mfrow=c(1,2))
+diagonalI <-data.frame(
+  graphType = c("linear","linear",rep(c("empircal"), each=10), rep(c("theorical"), each=10)),
+  x = c(ns[1], ns[10],rep(ns), rep(ns)),
+  y = c(runtimeI[1], runtimeI[10], rep(runtimeI), rep(theo))
+)
 
-linearx <- vector(length = 2)
-lineary <- vector(length = 2)
-linearx[0] <- ns[0]
-lineary[0] <- runtimeI[0]
-linearx[0] <- ns[10]
-lineary[0] <- runtimeI[10]
+diagonalR <-data.frame(
+  graphType = c("linear","linear",rep(c("empircal"), each=10), rep(c("theorical"), each=10)),
+  x = c(ns[1], ns[10],rep(ns), rep(ns)),
+  y = c(runtimeR[1], runtimeR[10], rep(runtimeR), rep(theo))
+)
 
-plot(linearx, lineary, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
-plot(ns, runtimeI, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
-grid(col="blue")
 
-plot(ns, runtimeR, type="b", xlab="n", ylab="runtime (second)", main = "Multiply")
-grid(col="blue")
+
+p <- ggplot(diagonalI,aes(x,y, group=graphType)) + geom_point(aes(color=graphType, shape=graphType))+ geom_line(aes(linetype=graphType, color=graphType)) + scale_linetype_manual(values=c("dashed","solid", "dotted"))
+p + labs(x="n-bit", y="Runtime")
+p + ggtitle("Multiplication of n-bit numbers")
+
+l <- ggplot(diagonalR,aes(x,y, group=graphType)) + geom_point(aes(color=graphType, shape=graphType))+ geom_line(aes(linetype=graphType, color=graphType)) + scale_linetype_manual(values=c("dashed","solid", "dotted"))
+l + labs(x="n-bit", y="Runtime")
+l + ggtitle("Multiplication of n-bit numbers")
+
+
+grid.arrange(p, l, nrow = 1)
+
+ */
+
+/* #plot(linearx, lineary, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
+#plot(ns, runtimeI, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
+#grid(col="blue")
+
+#plot(ns, runtimeR, type="b", xlab="n", ylab="runtime (second)", main = "Multiply")
+#grid(col="blue")
  */
