@@ -7,6 +7,20 @@
 using namespace std;
 
 
+void paddingVector( vector<bool> &x, vector<bool> &y ) {
+
+    while ( x.size() != y.size() ) {
+        if ( x.size() > y.size() ) {
+            y.push_back(0);
+        }
+        else {
+            x.push_back(0);
+        }
+
+    }
+
+}
+
 void printVector( vector<bool>  &a) {
     for ( int i = a.size()-1; i >= 0; i--) {
         cout<<a[i]<<' ';
@@ -21,15 +35,7 @@ vector<bool> addingBinary( vector<bool> &x, vector<bool> &y) {
     vector<bool> xTemp = x;
     vector<bool> yTemp = y;
 
-    while ( xTemp.size() != yTemp.size() ) {
-        if ( xTemp.size() > yTemp.size() ) {
-            yTemp.push_back(0);
-        }
-        else {
-            xTemp.push_back(0);
-        }
-
-    }
+    paddingVector(xTemp, yTemp);
 
     for ( int k = 0; ( k < xTemp.size() || k < yTemp.size() ); k++) {
         z.push_back(((xTemp[k] ^ yTemp[k] ^ carry )));
@@ -49,15 +55,7 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
     vector<bool> xTemp = x;
     vector<bool> yTemp = y;
 
-    while ( xTemp.size() != yTemp.size() ) {
-        if ( xTemp.size() > yTemp.size() ) {
-            yTemp.push_back(0);
-        }
-        else {
-            xTemp.push_back(0);
-        }
-
-    }
+    paddingVector(xTemp, yTemp);
     
     vector<bool> yComplement;
     
@@ -85,15 +83,7 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
 
     vector<bool> result;
 
-    while ( xTemp.size() != z.size() ) {
-        if ( xTemp.size() > z.size() ) {
-            z.push_back(0);
-        }
-        else {
-            xTemp.push_back(0);
-        }
-
-    }
+    paddingVector(xTemp, z);
 
     for ( int k = 0; ( k < z.size() || k < xTemp.size()); k++) {
         result.push_back(((z[k] ^ xTemp[k] ^ carry )));
@@ -104,10 +94,10 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
 }
 
 // multiples to boolean vectors itleriave
+// [[Rcpp::export]]
 vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
     vector<bool> z;
     vector<bool> inter;
-    bool carry;
     
     // fills vector with zeros to inlize vector
     z.assign(x.size() + y.size(), 0);
@@ -151,26 +141,17 @@ vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
     return z;
 }
 
-
-
+// [[Rcpp::export]]
 vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
 
     vector<bool> z;
     
-    while ( x.size() != y.size() ) {
-        if ( x.size() > y.size() ) {
-            y.push_back(0);
-        }
-        else {
-            x.push_back(0);
-        }
+    paddingVector(x, y);
 
-    }
     
     if ( x.size() == 1 && y.size() == 1 ) {
         z.push_back(0);
         z[0] = x[0] & y[0];
-        // cout<<"Size of One, Outta of Here Sucker"<<endl;
         return z; 
     }
 
@@ -267,30 +248,10 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     vector<bool> byte2 = {1,1};
     vector<bool> answer= { 1,0,1,1,0,1, };
 
-// 111111011010101010111110001 – 11111111 = 0111111011010101010011110010
-
-    // vector<bool> x = {0,0,1,0,0,1};
-    // vector<bool> y = {1,0,0,1};
-    // vector<bool> result = addingBinary(x,y);
-    // cout<<"X: ";
-    // printVector(x);
-    // cout<<endl<<"Y: ";
-    // printVector(y);
-    // cout<<endl<<"Result: ";
-    // printVector(result);
-    // cout<<endl;
-
     vector<bool> result = mul(byte2,byte1,0);
     
-    while ( result.size() != answer.size() ) {
-            if ( answer.size() > result.size() ) {
-                result.push_back(0);
-            }
-            else {
-                answer.push_back(0);
-            }
-    }
-    
+    paddingVector(result, answer);
+
     for ( int i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
@@ -313,16 +274,8 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
 
     result = mul(byte1,byte2,0);
 
-    
-    while ( result.size() != answer.size() ) {
-            if ( answer.size() > result.size() ) {
-                result.push_back(0);
-            }
-            else {
-                answer.push_back(0);
-            }
-    }
-    
+    paddingVector(result, answer);
+
     for ( int i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
@@ -340,22 +293,14 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     // Example 3
     // TO-DO: if failed, print out error message
 
-    
     byte1 = {1,1,1};
     byte2 = {1,1,1,1,0,0,0,1};
     answer= {1,0,0,1,0,1,1,1,1,1};
 
     result = mul(byte1,byte2,0);
-
-      while ( result.size() != answer.size() ) {
-            if ( answer.size() > result.size() ) {
-                result.push_back(0);
-            }
-            else {
-                answer.push_back(0);
-            }
-    }
     
+    paddingVector(result, answer);
+
     for ( int i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
@@ -379,14 +324,8 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
 
     result = mul(byte1,byte2,0);
 
-      while ( result.size() != answer.size() ) {
-            if ( answer.size() > result.size() ) {
-                result.push_back(0);
-            }
-            else {
-                answer.push_back(0);
-            }
-    }
+    paddingVector(result, answer);
+
     
     for ( int i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
@@ -412,15 +351,8 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
 
     result = mul(byte1,byte2,0);
 
-      while ( result.size() != answer.size() ) {
-            if ( answer.size() > result.size() ) {
-                result.push_back(0);
-            }
-            else {
-                answer.push_back(0);
-            }
-    }
-    
+    paddingVector(result, answer);
+
     for ( int i = 0; i < result.size(); i++ ) {
         if ( result[i] != answer[i] ) {
             passed = false;
@@ -439,6 +371,7 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     return passed;
 }
 
+// [[Rcpp::export]]
 bool testall() {
     // test the iterative solution:
     bool passed = test(multiply_itr);
@@ -538,3 +471,14 @@ int main () {
 //     }
     
 // }
+
+//--------------------------------------------------------------
+
+/*** R
+n <- 10
+x <- sample(c(0,1), n, replace=TRUE)
+y <- sample(c(0,1), n, replace=TRUE)
+system.time(multiply(x, y))[["user.self"]]
+system.time(multiply_itr(x, y))[["user.self"]]
+
+ */
