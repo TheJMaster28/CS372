@@ -69,7 +69,7 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
 
     vector<bool> one = {1};
     
-    while ( one.size() != x.size() ) {
+    while ( one.size() != xTemp.size() ) {
         one.push_back(0);
     }
     
@@ -85,9 +85,19 @@ vector<bool> subtractingBinary( vector<bool> &x, vector<bool> &y) {
 
     vector<bool> result;
 
-    for ( int k = 0; ( k < z.size() || k < x.size()); k++) {
-        result.push_back(((z[k] ^ x[k] ^ carry )));
-        carry = (( z[k] & x[k] ) | (z[k] & carry)) | (x[k] & carry);
+    while ( xTemp.size() != z.size() ) {
+        if ( xTemp.size() > z.size() ) {
+            z.push_back(0);
+        }
+        else {
+            xTemp.push_back(0);
+        }
+
+    }
+
+    for ( int k = 0; ( k < z.size() || k < xTemp.size()); k++) {
+        result.push_back(((z[k] ^ xTemp[k] ^ carry )));
+        carry = (( z[k] & xTemp[k] ) | (z[k] & carry)) | (xTemp[k] & carry);
     }
 
     return result;
@@ -330,40 +340,102 @@ bool test(vector<bool> (* mul)(vector<bool> &x, vector<bool> &y, bool debug)) {
     // Example 3
     // TO-DO: if failed, print out error message
 
-    // byte1 = {1,0,0,1,0,1,0,1,0,1};
-    // byte2 = {1,0,0,1,1,1,1,0,1,0,1,0,0,1};
-    // answer= {1,0,0,0,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,0,0,1,1};
-
-    // result = mul(byte1,byte2,0);
-
-    //   while ( result.size() != answer.size() ) {
-    //         if ( answer.size() > result.size() ) {
-    //             result.push_back(0);
-    //         }
-    //         else {
-    //             answer.push_back(0);
-    //         }
-    // }
     
-    // for ( int i = 0; i < result.size(); i++ ) {
-    //     if ( result[i] != answer[i] ) {
-    //         passed = false;
-    //         cout<<"Error, Test Case 3 has Failed"<<endl;
-    //         cout<<"Result: ";
-    //         printVector(result);
-    //         cout<<endl;
-    //         cout<<"Answer: ";
-    //         printVector(answer);
-    //         cout<<endl;
-    //         break;
-    //     }
-    // }
+    byte1 = {1,1,1};
+    byte2 = {1,1,1,1,0,0,0,1};
+    answer= {1,0,0,1,0,1,1,1,1,1};
+
+    result = mul(byte1,byte2,0);
+
+      while ( result.size() != answer.size() ) {
+            if ( answer.size() > result.size() ) {
+                result.push_back(0);
+            }
+            else {
+                answer.push_back(0);
+            }
+    }
+    
+    for ( int i = 0; i < result.size(); i++ ) {
+        if ( result[i] != answer[i] ) {
+            passed = false;
+            cout<<"Error, Test Case 3 has Failed"<<endl;
+            cout<<"Result: ";
+            printVector(result);
+            cout<<endl;
+            cout<<"Answer: ";
+            printVector(answer);
+            cout<<endl;
+            break;
+        }
+    }
 
     // Example 4
     // TO-DO: if failed, print out error message
+
+    byte1 = {1,0,0,1,0,1,0,1,0,1};
+    byte2 = {1,0,0,1,1,1,1,0,1,0,1,0,0,1};
+    answer= {1,0,0,0,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,0,0,1,1};
+
+    result = mul(byte1,byte2,0);
+
+      while ( result.size() != answer.size() ) {
+            if ( answer.size() > result.size() ) {
+                result.push_back(0);
+            }
+            else {
+                answer.push_back(0);
+            }
+    }
+    
+    for ( int i = 0; i < result.size(); i++ ) {
+        if ( result[i] != answer[i] ) {
+            passed = false;
+            cout<<"Error, Test Case 4 has Failed"<<endl;
+            cout<<"Result: ";
+            printVector(result);
+            cout<<endl;
+            cout<<"Answer: ";
+            printVector(answer);
+            cout<<endl;
+            break;
+        }
+    }
+
     
     // Example 5
     // TO-DO: if failed, print out error message
+
+    byte1 = {0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,1,1};
+    byte2 = {1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,0,0,0,1};
+    answer= {0,1,0,1,1,1,0,0,0,1,1,1,0,0,1,0,1,1,1,0,0,1,0,1,1,0,0,1,0,1,0,0,1,1,0,0,0,0,1,1,1,0,0,1,0,0,0,1,0};
+
+    result = mul(byte1,byte2,0);
+
+      while ( result.size() != answer.size() ) {
+            if ( answer.size() > result.size() ) {
+                result.push_back(0);
+            }
+            else {
+                answer.push_back(0);
+            }
+    }
+    
+    for ( int i = 0; i < result.size(); i++ ) {
+        if ( result[i] != answer[i] ) {
+            passed = false;
+            cout<<"Error, Test Case 4 has Failed"<<endl;
+            cout<<"Result: ";
+            printVector(result);
+            cout<<endl;
+            cout<<"Answer: ";
+            printVector(answer);
+            cout<<endl;
+            break;
+        }
+    }
+
+    
     return passed;
 }
 
