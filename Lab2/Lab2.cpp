@@ -110,11 +110,7 @@ vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
         
         // if y's bit is one, then copy x to intermedite
         if ( y[i] ) {
-            for ( size_t k = 0; k < x.size(); k++) {
-                for ( size_t l = 0; l < x.size(); l++) {
-                    inter[l] = x[l];
-                } 
-            }
+            inter = x;
             
             // add zeros to least significant side for rule of multipliction
             for ( size_t l = 0; l < i; l++) {
@@ -141,25 +137,30 @@ vector<bool> multiply_itr(vector<bool> & x, vector<bool> & y ,bool debug) {
     return z;
 }
 
+// multiples binary vectors with divide and conquer
 // [[Rcpp::export]]
 vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
 
     vector<bool> z;
     
+    // makes vectors same size
     paddingVector(x, y);
 
     
+    // returns xy if size is 1
     if ( x.size() == 1 && y.size() == 1 ) {
         z.push_back(0);
         z[0] = x[0] & y[0];
         return z; 
     }
-
+    
+    // makes size even 
     if ( x.size() % 2 != 0 ) {
         x.push_back(0);
         y.push_back(0);
     }
 
+    // vectors for right and left bits
     vector<bool> xR;
     vector<bool> xL;
     vector<bool> yR;
@@ -167,6 +168,7 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
 
     int xRsize, xLsize, yRsize, yLsize;
 
+    // does flooring and ceiling on sizes
     xRsize = floor(x.size()/2.0);
     yRsize = floor(y.size()/2.0);
     xLsize = ceil(y.size()/2.0);
@@ -177,6 +179,7 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
     yR.assign(yRsize, 0);
     yL.assign(yLsize, 0);
     
+    // calculates rightmost bits and leftmost bits
     for ( size_t i = 0; i < x.size() && i < y.size(); i++ ) {
         if ( (int)i < xRsize ) {
             xR[i] = x[i];
@@ -204,34 +207,29 @@ vector<bool> multiply(vector<bool> & x, vector<bool> & y ,bool debug) {
     yR.clear();
     yL.clear();
 
+    // Starting to do final return, but must break apart answer because C++ 
+    // does not support changing temporary vectors.
     temp.clear();
     temp = P1;
 
-    // 
+    // multiple by 2
     for ( size_t i = 0; i < x.size(); i++ ) {
         temp.insert(temp.begin(),0);
     }
     
-    // 
     temp1.clear();
     temp1 = subtractingBinary(P3,P1);
-    
-    // 
+     
     vector<bool> temp2 = subtractingBinary(temp1,P2);
 
-    // 
+    // multiple by 2^n/2
     for ( size_t i = 0; i < x.size()/2; i++ ) {
         temp2.insert(temp2.begin(),0);
     }
     
-    // 
     temp1.clear();
-    // adding problem 36 + 9
     temp1 = addingBinary( temp2, P2 );
-    
-    // 
     z = addingBinary( temp, temp1 );
-    // z= temp1;
     
     return z;
 }
@@ -395,82 +393,11 @@ bool testall() {
 }
 
 int main () {
-    // testingMuliply();
-    
 
     testall();
 
     return 0;
 }
-
-
-// void testingMuliply() {
-//     string byte1;
-//     string byte2;
-//     string answer;
-//     bool passed = true;
-//     bool debug;
-    
-//     // get input from user
-//     cout<<"Enter Byte 1: "<<endl;
-//     cin>>byte1;
-
-//     cout<<"Enter Byte 2: "<<endl;
-//     cin>>byte2;
-
-//     cout<<"Enter Answer: "<<endl;
-//     cin>>answer;
-
-//     cout<<"Debug?"<<endl;
-//     cin>>debug;
-
-//     vector<bool> x,y,z;
-
-//     // convert string to boolean vector
-//     for( int i = byte1.length()-1; i >= 0; i-- ) {
-//         x.push_back( byte1.at(i) == '1' );
-//     }
-
-//     for ( int i = byte2.length()-1; i >= 0; i--) {
-//         y.push_back( byte2.at(i) == '1' );
-//     }
-
-//     for ( int i = answer.length()-1; i >= 0; i--) {
-//         z.push_back( answer.at(i) == '1' );
-//     }
-    
-//     // do Muliply_itr function
-//     vector<bool> result = multiply_itr(x,y,debug);
-
-//     // make both input vector and result vector same size for easy comparing
-//     while ( result.size() != z.size() ) {
-//         if ( z.size() > result.size() ) {
-//             result.push_back(0);
-//         }
-//         else {
-//             z.push_back(0);
-//         }
-//     }
-
-//     // compare values for mismatch bits
-//     for ( int i = 0; i < z.size(); i++ ) {
-//         if ( result[i] != z[i] ) {
-//             passed = false;
-//             break;
-//         }
-//     }
-
-//     if ( passed ) {
-//         cout<<"muliply_itr has Passed!"<<endl;
-//     }
-//     else {
-//         cout<<"muliply_itr has Failed"<<endl;
-//         cout<<"Result: ";
-//         printVector(result);
-//         cout<<endl;
-//     }
-    
-// }
 
 //--------------------------------------------------------------
 
@@ -478,51 +405,83 @@ int main () {
 library(ggplot2)
 library(gridExtra)
 library(grid)
+if ( !testall() ) { quit(status=1)}
 
 n <- 10
 runtimeI <- vector(length = n)
 runtimeR <- vector(length = n)
-ns <- vector(length = n)
+ns <- 500*(1:n)
 for ( k in 1:n ) {
-  ns[k] = n*k*k
   x <- sample(c(0,1), ns[k], replace=TRUE)
   y <- sample(c(0,1), ns[k], replace=TRUE)
   runtimeR[k] = system.time(multiply(x, y,0))[["user.self"]]
   runtimeI[k] = system.time(multiply_itr(x, y,0))[["user.self"]]
 }
-theo <- vector(length = n)
+
+cI <- .01
+count <- 6
+diff <- (cI * ns[count]^2 )  - runtimeI[count]
+while ( diff > .01 ) {
+  cI <- cI - .00000001
+  diff <- (cI * ns[count]^2 )  - runtimeI[count]
+}
+
+theoI <- vector(length = n)
+for ( k in 1:n ) {
+  theoI[k] = cI * ns[k]^2
+}
+
+logBase2Of3 <- log(3,base=2)
+
+cR <- .0001
+count <- 6
+diff <- (cR * ns[count]^logBase2Of3 )  - runtimeR[count]
+while ( diff > .01 ) {
+  cR <- cR - .000000001
+  diff <- (cR * ns[count]^logBase2Of3 )  - runtimeR[count]
+}
+
+theoR <- vector(length = n)
+
+for ( k in 1:n ) {
+  theoR[k] = cR * ns[k]^logBase2Of3
+}
+
 
 diagonalI <-data.frame(
   graphType = c("linear","linear",rep(c("empircal"), each=10), rep(c("theorical"), each=10)),
-  x = c(ns[1], ns[10],rep(ns), rep(ns)),
-  y = c(runtimeI[1], runtimeI[10], rep(runtimeI), rep(theo))
+  x = c(ns[1], ns[10],rep(ns),rep(ns)),
+  y = c(runtimeI[1], runtimeI[10], rep(runtimeI),rep(theoI))
 )
 
 diagonalR <-data.frame(
   graphType = c("linear","linear",rep(c("empircal"), each=10), rep(c("theorical"), each=10)),
   x = c(ns[1], ns[10],rep(ns), rep(ns)),
-  y = c(runtimeR[1], runtimeR[10], rep(runtimeR), rep(theo))
+  y = c(runtimeR[1], runtimeR[10], rep(runtimeR), rep(theoR))
 )
 
 
 
-p <- ggplot(diagonalI,aes(x,y, group=graphType)) + geom_point(aes(color=graphType, shape=graphType))+ geom_line(aes(linetype=graphType, color=graphType)) + scale_linetype_manual(values=c("dashed","solid", "dotted"))
-p + labs(x="n-bit", y="Runtime")
-p + ggtitle("Multiplication of n-bit numbers")
+p <- ggplot(diagonalI,aes(x,y, group=graphType)) +
+  geom_point(aes(color=graphType, shape=graphType)) +
+  geom_line(aes(linetype=graphType, color=graphType)) + 
+  scale_linetype_manual(values=c("dashed","solid", "dotted"))  
 
-l <- ggplot(diagonalR,aes(x,y, group=graphType)) + geom_point(aes(color=graphType, shape=graphType))+ geom_line(aes(linetype=graphType, color=graphType)) + scale_linetype_manual(values=c("dashed","solid", "dotted"))
-l + labs(x="n-bit", y="Runtime")
-l + ggtitle("Multiplication of n-bit numbers")
+
+p <- p + labs(x="n-bit", y="Runtime")
+
+p <- p + ggtitle("Multiplication of n-bit numbers\nIterative")
+
+l <- ggplot(diagonalR,aes(x,y, group=graphType)) +
+  geom_point(aes(color=graphType, shape=graphType)) +
+  geom_line(aes(linetype=graphType, color=graphType)) + 
+  scale_linetype_manual(values=c("dashed","solid", "dotted")) 
+
+
+l <- l + labs(x="n-bit", y="Runtime")
+l <- l + ggtitle("Multiplication of n-bit numbers\nDivide And Conquer")
 
 
 grid.arrange(p, l, nrow = 1)
 
- */
-
-/* #plot(linearx, lineary, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
-#plot(ns, runtimeI, type="b", xlab="n", ylab="runtime (second)", main = "Multiply_itr")
-#grid(col="blue")
-
-#plot(ns, runtimeR, type="b", xlab="n", ylab="runtime (second)", main = "Multiply")
-#grid(col="blue")
  */
