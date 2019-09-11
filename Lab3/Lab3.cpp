@@ -62,10 +62,12 @@ vector<T> find_row_maxima_itr(const matrix<T> & m)
 {
   // Your code here:
   // Iteratively find the row maximum of row by row:
+  
   vector<T> r;
   
   T max;
 
+  // go through each row and find the maximum
   for ( size_t i = 0; i < m.nrow(); i++ ) {
     max = m(i,0);
     for ( size_t j = 0; j < m.ncol(); j++ ) {
@@ -226,7 +228,6 @@ bool test_row_maxima(vector<double> (*rmfun) (const vector<double> & v, size_t n
     cout << "ERROR: failed test 2!" << endl;
     passed = false;
   }
-
 
   double z[] = {
                   4,1,1,1,1,
