@@ -92,7 +92,10 @@ vector<T> find_row_maxima(const matrix<T> & m)
 
   vector<T> r;
   
+  // base case if number of rows is 1
   if ( m.nrow() == 1 ) {
+
+    // find maximum of the row
     T max = m(0,0);
     for ( int i = 0 ; i < m.ncol(); i++ ) {
       T num = m(i,0);
@@ -105,111 +108,60 @@ vector<T> find_row_maxima(const matrix<T> & m)
     return r;
   }
   
-  if ( m.nrow() == 2 ) {
+  // get middle row of the matrix
+  size_t middleRow = ceil(m.nrow()/2.0);
 
-    double *firstHalfA;
-    firstHalfA = new double[( m.nrow() / 2) * m.ncol() ];
-    int pointerForElement = 0;
-    for ( size_t i = 0; i < m.ncol(); i++) {
-      for ( size_t j = 0; j < 1; j++){
-        firstHalfA[pointerForElement] = m(j, i);
-        pointerForElement++;
-      }
+  // do something special for 2x matrixs 
+  if ( m.nrow() == 2 ) middleRow = 2;
+  
+  // exclude middle row for divison
+  middleRow--;
+
+  // find maximum of the middle row
+  size_t maxColumn = 0;
+  T max = m(middleRow,0);
+  for ( size_t i = 0 ; i < m.ncol(); i++ ) {
+    T value = m(middleRow,i);
+    if ( max <  value ) {
+      max=value;
+      maxColumn = i;
     }
 
-    vector<double> firstHalfM (firstHalfA, firstHalfA+(1 * m.ncol() ));
-
-    matrix<T> firstHalf(firstHalfM, 1, m.ncol() );
-
-
-    double *secondHalfA;
-    secondHalfA = new double[1 * m.ncol() ];
-    pointerForElement = 0;
-
-    for ( size_t i = 0; i < m.ncol(); i++) {
-      for ( size_t j = 1 ; j < m.nrow(); j++){
-        secondHalfA[pointerForElement] = m(j, i);
-        pointerForElement++;
-      }
+  // create first (top) half of matrix
+  vector<T> firstHalfA;
+  for ( size_t i=0; i <= maxColumn; i++ ) {
+    for( size_t j=0; j < middleRow; j++ ) {
+      firstHalfA.push_back(m(j,i));
     }
-
-    vector<double> secondHalfM (secondHalfA, secondHalfA+( 1 * m.ncol() ));
-
-    matrix<T> secondHalf(secondHalfM, 1, m.ncol() );
-
-
-    vector<T> r1 = find_row_maxima(firstHalf);
-    vector<T> r2 = find_row_maxima(secondHalf);
-    r1.insert(r1.end(), r2.begin(), r2.end());
-    
-    
-    r = r1;
-    return r;
-    
   }
 
-  else {
-    // find middle row for either even or odd number of rows
-
-    size_t middleRow = ceil(m.nrow()/2);
-    T max = m(0,0);
-    for ( size_t i = 0 ; i < m.ncol(); i++ ) {
-      if ( max < m(i,middleRow) ) {
-        max=m(i,middleRow);
-      }
+  // create second (bottom) half of matrix
+  vector<T> secondHalfA;
+  for ( size_t i=maxColumn; i < m.ncol(); i++ ) {
+    for( size_t j=middleRow+1; j < m.nrow(); j++ ) {
+      secondHalfA.push_back(m(j,i));
     }
-
-    
-    // SPilt Matix in half
-    double *firstHalfA;
-    firstHalfA = new double[( m.nrow() / 2) * m.ncol() ];
-    int pointerForElement = 0;
-    for ( size_t i = 0; i < m.ncol(); i++) {
-      for ( size_t j = 0; j < middleRow; j++){
-        firstHalfA[pointerForElement] = m(j, i);
-        pointerForElement++;
-      }
-    }
-
-    vector<double> firstHalfM (firstHalfA, firstHalfA+(( m.nrow() / 2) * m.ncol() ));
-
-    matrix<T> firstHalf(firstHalfM, floor(m.nrow() / 2), m.ncol() );
-    
-
-    double *secondHalfA;
-    secondHalfA = new double[( m.nrow() / 2) * m.ncol() ];
-    pointerForElement = 0;
-
-    for ( size_t i = 0; i < m.ncol(); i++) {
-      for ( size_t j = middleRow + 1 ; j < m.nrow(); j++){
-        secondHalfA[pointerForElement] = m(j, i);
-        pointerForElement++;
-      }
-    }
-
-    size_t size= 1;
-    if ( m.nrow() % 2 == 0 ) {
-      size = (m.nrow() / 2 ) -1;
-    }
-    else {
-      size = m.nrow() / 2;
-    }
-    vector<double> secondHalfM (secondHalfA, secondHalfA+(  size * m.ncol() ));
-
-    matrix<T> secondHalf(secondHalfM, size, m.ncol());
-    
-    vector<T> r1 = find_row_maxima(firstHalf);
-    vector<T> r2 = find_row_maxima(secondHalf);
-    r1.insert(r1.end(),max);
-    r1.insert(r1.end(), r2.begin(), r2.end());
-  
-  
-    r = r1;
-    return r;
-
   }
+
+  // create the matrixs
+  matrix<T> firstHalf( firstHalfA, middleRow, maxColumn+1 );
+  matrix<T> secondHalf( secondHalfA, m.nrow() - (middleRow+1), ( m.ncol() - maxColumn ) );
+    
+  // find first half maxiumias  
+  vector<T> r1 = find_row_maxima(firstHalf);
   
-  
+  // insert middle maximum 
+  r.insert(r.end(), r1.begin(), r1.end());
+  r.push_back(max);
+
+  // if not a 2x matrix, insert bottom half  
+  if ( m.nrow() != 2 ) {
+    vector<T> r2 = find_row_maxima(secondHalf);
+    r.insert(r.end(), r2.begin(), r2.end());
+  }
+    
+  return r;
+
 }
 
 //[[Rcpp::export]]
@@ -261,7 +213,72 @@ bool test_row_maxima(vector<double> (*rmfun) (const vector<double> & v, size_t n
     cout << "ERROR: failed test 1!" << endl;
     passed = false;
   }
-  
+
+  double y[] = { 
+                  1, -1, -2.5, -3, -1, -1.2, -3, -10, -54, -90, -100.34, -1, 0, -3, 
+                  2,  6,   1,   4,  5,   1,  -1,  -2,  3,  4,         1,  5, 2,  0,
+                  0,   1,   9,  7,  6,   2,   1,   2,  4,  6,         8, 10, 3,  9
+  };
+
+  vector<double> v1(y,y+42);
+
+  vector<double> truth = {2,6,9,7,6,2,1,2,4,6,8,10,3,9};
+
+  if (rmfun(v1,14, 3) != truth ) {
+    cout << "ERROR: failed test 2!" << endl;
+    passed = false;
+  }
+
+
+  double z[] = {
+                  4,1,1,1,1,
+                  1,4,1,1,1,
+                  1,1,4,1,1,
+                  1,1,1,4,1,
+                  1,1,1,1,4,
+                  1,1,1,1,1
+  };
+
+  vector<double> v2(z,z+30);
+
+  truth = {4,4,4,4,4};
+
+  if (rmfun(v2,5,6) != truth ) {
+    cout << "ERROR: failed test 3!" << endl;
+    passed = false;
+  }
+
+  double a[] = {
+                  1,-1,-1,-1,
+                  -1,-1,-1,-1,
+                  -1,-1,-1,-1,
+                  -1, 1, 1, 1,
+  };
+
+  vector<double> v3(a,a+16);
+
+  truth = {1,1,1,1};
+
+  if (rmfun(v3,4,4) != truth ) {
+    cout << "ERROR: failed test 4!" << endl;
+    passed = false;
+  }
+
+
+double b[] = {
+                  5,1,1,
+                  1,5,5,
+  };
+
+  vector<double> v4(b,b+6);
+
+  truth = {5,5,5};
+
+  if (rmfun(v4,3,2) != truth ) {
+    cout << "ERROR: failed test 5!" << endl;
+    passed = false;
+  }
+
   return passed;
 }
 
