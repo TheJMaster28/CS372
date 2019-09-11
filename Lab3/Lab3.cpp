@@ -68,9 +68,9 @@ vector<T> find_row_maxima_itr(const matrix<T> & m)
   
   T max;
 
-  for ( size_t i = 0; i < m.nrow(); i++ ) {
+  for ( int i = 0; i < m.nrow(); i++ ) {
     max = m(i,0);
-    for ( size_t j = 0; j < m.ncol(); j++ ) {
+    for ( int j = 0; j < m.ncol(); j++ ) {
       if ( max < m(i, j) )
         max = m(i, j);
     }
@@ -97,7 +97,7 @@ vector<T> find_row_maxima(const matrix<T> & m)
 
     // find maximum of the row
     T max = m(0,0);
-    for ( size_t i = 0 ; i < m.ncol(); i++ ) {
+    for ( int i = 0 ; i < m.ncol(); i++ ) {
       T num = m(i,0);
       if ( max <  num) {
         max=num;
@@ -126,7 +126,6 @@ vector<T> find_row_maxima(const matrix<T> & m)
       max=value;
       maxColumn = i;
     }
-  }
 
   // create first (top) half of matrix
   vector<T> firstHalfA;
@@ -185,7 +184,8 @@ vector<double> row_maxima_itr(const vector<double> & v, size_t nrow, size_t ncol
 vector<double> row_maxima(const vector<double> & v, size_t nrow, size_t ncol)
 {
   matrix<double> mat(v, nrow, ncol);
-  return find_row_maxima(mat);;
+  vector<double> answer = find_row_maxima(mat);
+  return answer;
 }
 
 bool test_row_maxima(vector<double> (*rmfun) (const vector<double> & v, size_t nrow, size_t ncol)) 
@@ -308,12 +308,7 @@ int main()
   return 0;
 }
   
-// ------------------------------------------------------------------------------------------------------------------------
-
 /*** R
-library(ggplot2)
-library(gridExtra)
-library(grid)
 
 if(!testall()) stop()
 
@@ -324,64 +319,6 @@ random.monotone.matrix <- function(nrow, ncol)
   o <- order(row.maxima.indices)
   m <- m[o, ]
 }
-
-n <- 10
-mN <- 1000 * 1:n
-
-runtimeI <- vector( length = n )
-runtimeR <- vector( length = n )
-for ( k in 1:n ) {
-  
-  m <- random.monotone.matrix(mN[k],mN[k])
-  
-  runtimeI[k] = system.time(row_maxima_itr(m,mN[k],mN[k]))[["user.self"]]
-  runtimeR[k] = system.time(row_maxima(m,mN[k],mN[k]))[["user.self"]]
-  
-}
-
-theoI <- vector(length = n)
-theoR <- vector(length = n)
-
-cI <- .1
-count <- 7
-diff <- (cI * mN[count]^2 )  - runtimeI[count]
-while ( diff > .01 ) {
-  cI <- cI - .00000001
-  diff <- (cI * mN[count]^2 )  - runtimeI[count]
-}
-
-for ( k in 1:n ) {
-  theoI[k] = cI * mN[k]^2
-}
-
-#logBase2Of3 <- log(3,base=2)
-
-cR <- .01
-count <- 7
-diff <- (cR * mN[count] * log(count, base = 2) )  - runtimeR[count]
-while ( diff > .01 ) {
-  cR <- cR - .000000001
-  diff <- (cR * mN[count] * log(count, base = 2) )  - runtimeR[count]
-}
-
-for ( k in 1:n ) {
-  theoR[k] = cR * mN[k]* log(count, base = 2)
-}
-
-data <- data.frame(
-  graphType = c(rep(c("Brute Force") , each=n), rep(c("Divide And Conquer"), each=n), rep(c("c1n^2"), each=n), rep(c("c2nlog2(n)"), each=n) ),
-  x = c( rep(mN), rep(mN), rep(mN), rep(mN)),
-  y = c( rep(runtimeI),rep(runtimeR), rep(theoI), rep(theoR))
-  
-)
-
-p <- ggplot(data, aes(x,y,group=graphType)) +
-  geom_point(aes(color=graphType, shape = graphType)) +
-  geom_line( aes( color=graphType, linetype = graphType) ) +
-  scale_linetype_manual(values=c( "solid", "dashed","dashed", "solid" ))
-p <- p + labs(x="n (n x n matrix)", y="Runtime")
-p <- p + ggtitle("Solving Matrix Search problem")
-grid.arrange(p, nrow=1)
 
 # Your R code for run time evaluation and visualization
 */
