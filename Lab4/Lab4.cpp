@@ -6,6 +6,8 @@
 #include <list>
 using namespace std;
 
+
+
 class Node {
 
     private:
@@ -24,6 +26,7 @@ class Graph {
     private:
         vector< Node > m_nodes;
         vector< list<Node> > m_adjList;
+
     
     public:
         Graph ( const string & file )
@@ -31,13 +34,14 @@ class Graph {
                 scan(file);
             };
 
-        void addEdge ( const Node & a, const Node & b) {
-            cout<<"BLAH"<<endl;
+        void addEdge ( const Node & a, const Node & b, int place) {
+            // cout<<"BLAH"<<endl;
 
-            list<Node> l;
-            l.push_back(a);
+            list<Node> l = m_adjList[place];
+            // l.push_back(a);
             l.push_back(b);
-            m_adjList.resize;
+            // m_adjList.resize;
+            m_adjList[place] = l;
         }
 
         void addNode( const Node & a ) { 
@@ -53,28 +57,99 @@ class Graph {
         
         size_t num_nodes() const { return m_nodes.size(); }
 
+        bool findNode ( string &name, vector<string> &l ) const {
+            bool r = false;
+            
+            if ( l.empty() ) {
+                return r;
+            }
+
+            for ( int i = 0; i < l.size(); i ++ ) {
+                // cout<<"in list: "<<l[i]<<endl;
+                // cout<<"Incoming: "<<name<<endl;
+                if ( l[i].compare(name) == 0 ) {
+                    
+                    r = true;
+                    return r;
+                }
+            }
+            return r; 
+        }
+
+        int findNodeNum ( string &name, vector<string> &l ) const {
+            int r = -1;
+            
+            if ( l.empty() ) {
+                return r;
+            }
+
+            for ( int i = 0; i < l.size(); i ++ ) {
+                // cout<<"in list: "<<l[i]<<endl;
+                // cout<<"Incoming: "<<name<<endl;
+                if ( l[i].compare(name) == 0 ) {
+                    
+                    r = i;
+                    return r;
+                }
+            }
+            return r; 
+        }
+
         void scan(const string & file ){
             ifstream myFile;
             myFile.open( file );
             string c1, c2;
             int id = 0;
+            int totalNodes = 0;
+            vector< string > nodeList; 
+            vector< string > edgeList;
+            vector< int > edgeNum; 
+            
             if ( myFile.is_open()) {
+                
                 while ( myFile >> c1 >> c2) {
-                    Node a(c1, id);
-                    m_nodes.resize(id+1);
-                    addNode(a);
-                    id++;
-                    Node b(c2, id);
-                    m_nodes.resize(id+1);
-                    addNode(b);
-                    id++;
+
+                    // get total nodes first
                     
-                }
-                for ( int j= 0 ; j < id; j++ ) {
-                    Node a = getNode(j);
-                    addEdge(a,b);
+                    edgeList.push_back(c1);
+                    edgeList.push_back(c2);
+
+                    if ( !findNode(c1,nodeList) ) {
+                        nodeList.push_back(c1);
+                        totalNodes++;
+                    }
+
+                    if ( !findNode(c2,nodeList) ) {
+                        nodeList.push_back(c2);
+                        totalNodes++;
+                    }
                 }
                 
+                m_nodes.resize(totalNodes);
+                
+                for ( size_t i = 0; i < nodeList.size() ; i++) {
+                    Node a ( nodeList[i], id );
+                    edgeNum.push_back(id);
+                    id++;
+                    // Node b ( nodeList[i], id++ );
+                    addNode(a);
+                    // addNode(b);
+                }
+                
+                m_adjList.resize(edgeList.size());
+                
+                int place = 0;
+                
+                for (size_t i = 0; i < edgeList.size(); i++) {
+                    
+
+                    int placeHolder = findNodeNum(edgeList[i], nodeList);
+                    Node a = getNode(placeHolder);
+                    int placeHolder1 = findNodeNum(edgeList[++i], nodeList);
+                    Node b = getNode(placeHolder1);
+                    addEdge(a,b, placeHolder);
+                    
+                }
             }
         }
 

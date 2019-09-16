@@ -3,3 +3,10 @@ a	b
 c	b
 d	c
 e	a
+a	r
+t	w
+a	i
+z	y
+b	e
+m	u
+q	w
