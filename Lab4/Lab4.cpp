@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <unordered_map>
 using namespace std;
 
+// [[Rcpp::plugins(cpp11)]]
 
 
 class Node {
@@ -32,16 +34,20 @@ class Graph {
         Graph ( const string & file )
             { 
                 scan(file);
+                string NewFileName = file.substr(0,(file.size()-4));
+                cout<<NewFileName<<endl; 
+                save(NewFileName.append("_output.txt"));
             };
 
-        void addEdge ( const Node & a, const Node & b, int place) {
+        void addEdge ( const Node & a, const Node & b) {
             // cout<<"BLAH"<<endl;
 
-            list<Node> l = m_adjList[place];
+            list<Node> l = m_adjList[a.id()];
             // l.push_back(a);
             l.push_back(b);
             // m_adjList.resize;
-            m_adjList[place] = l;
+            m_adjList[a.id()] = l;
+            
         }
 
         void addNode( const Node & a ) { 
@@ -57,103 +63,153 @@ class Graph {
         
         size_t num_nodes() const { return m_nodes.size(); }
 
-        bool findNode ( string &name, vector<string> &l ) const {
-            bool r = false;
-            
-            if ( l.empty() ) {
-                return r;
-            }
-
-            for ( int i = 0; i < l.size(); i ++ ) {
-                // cout<<"in list: "<<l[i]<<endl;
-                // cout<<"Incoming: "<<name<<endl;
-                if ( l[i].compare(name) == 0 ) {
-                    
-                    r = true;
-                    return r;
-                }
-            }
-            return r; 
-        }
-
-        int findNodeNum ( string &name, vector<string> &l ) const {
-            int r = -1;
-            
-            if ( l.empty() ) {
-                return r;
-            }
-
-            for ( int i = 0; i < l.size(); i ++ ) {
-                // cout<<"in list: "<<l[i]<<endl;
-                // cout<<"Incoming: "<<name<<endl;
-                if ( l[i].compare(name) == 0 ) {
-                    
-                    r = i;
-                    return r;
-                }
-            }
-            return r; 
-        }
-
         void scan(const string & file ){
             ifstream myFile;
             myFile.open( file );
             string c1, c2;
-            int id = 0;
-            int totalNodes = 0;
-            vector< string > nodeList; 
-            vector< string > edgeList;
-            vector< int > edgeNum; 
-            
+            size_t id = 0;
+            size_t edgeId = 0;
+
+            // using hash table
+            unordered_map<string, size_t > nodeMap;
+            // unordered_map< string, string > edgeMap;
+            int edgeNumber = 0; 
+
             if ( myFile.is_open()) {
                 
                 while ( myFile >> c1 >> c2) {
-
+                    
                     // get total nodes first
                     
-                    edgeList.push_back(c1);
-                    edgeList.push_back(c2);
+                    unordered_map< string, size_t >::const_iterator nodeA = nodeMap.find(c1);
 
-                    if ( !findNode(c1,nodeList) ) {
-                        nodeList.push_back(c1);
-                        totalNodes++;
-                    }
+                    
+                    
+                    if ( nodeA == nodeMap.end() ) {
+                        pair< string, size_t > node1 ( c1, id++ );
+                        nodeMap.insert(node1);
 
-                    if ( !findNode(c2,nodeList) ) {
-                        nodeList.push_back(c2);
-                        totalNodes++;
                     }
+                    
+                    unordered_map< string, size_t >::const_iterator nodeB = nodeMap.find(c2);
+
+                    if ( nodeB == nodeMap.end() ) {
+                        pair< string, size_t > node2 ( c2, id++ );
+                        nodeMap.insert(node2);
+                    }
+                    // edgeNumber++;
+                    // unordered_map< string, string >::const_iterator findEdge = edgeMap.find( c1 );
+
+                    // if ( findEdge == edgeMap.end() || ( findEdge->second.compare(c2) != 0 )) {
+                    //     edgeMap.insert( {c1, c2} );
+                    // }
+                    
+
+
+                    // findNode(c1,nodeMap);
+                    // findNode(c2,nodeMap);
+                    // edgeList.push_back(c1);
+                    // edgeList.push_back(c2);
+
+                    // if ( !findNode(c1,nodeList) ) {
+                    //     nodeList.push_back(c1);
+                    //     totalNodes++;
+                    // }
+
+                    // if ( !findNode(c2,nodeList) ) {
+                    //     nodeList.push_back(c2);
+                    //     totalNodes++;
+                    // }
                 }
-                
-                m_nodes.resize(totalNodes);
-                
-                for ( size_t i = 0; i < nodeList.size() ; i++) {
-                    Node a ( nodeList[i], id );
-                    edgeNum.push_back(id);
-                    id++;
-                    // Node b ( nodeList[i], id++ );
+
+                m_nodes.resize(nodeMap.size());
+                m_adjList.resize(nodeMap.size());
+
+                for ( pair <string, size_t> node : nodeMap ) {
+                    Node a ( node.first, node.second );
                     addNode(a);
-                    // addNode(b);
                 }
+                myFile.close();
+                myFile.open(file);
+                while ( myFile >> c1 >> c2) {
+                    
+                    unordered_map< string, size_t >::const_iterator nodeA = nodeMap.find(c1);
+
+                    unordered_map< string, size_t >::const_iterator nodeB = nodeMap.find(c2);
+                    
+                    Node a = getNode(nodeA->second);
+                    Node b = getNode(nodeB->second);
+
+                    addEdge(a,b);
+                }
+
+
+                // for ( pair < string, string > node : edgeMap ) {
+
+                //     unordered_map< string, size_t >::const_iterator nodeA = nodeMap.find(node.first);
+
+                //     unordered_map< string, size_t >::const_iterator nodeB = nodeMap.find(node.second);
+
+                //     Node a = getNode(nodeA->second);
+                //     Node b = getNode(nodeB->second);
+                //     addEdge(a,b);
+                    
+                // }
+
+                // m_nodes.resize(nodeMap.size());
+
+                // for ( size_t i = 0; i < nodeMap.size(); i++ ) {
+
+                //     m_nodes[i] = nodeMap[i]
+
+                // }
                 
-                m_adjList.resize(edgeList.size());
+                // m_nodes.resize(totalNodes);
                 
-                int place = 0;
+                // for ( size_t i = 0; i < nodeList.size() ; i++) {
+                //     Node a ( nodeList[i], id );
+                //     edgeNum.push_back(id);
+                //     id++;
+                //     // Node b ( nodeList[i], id++ );
+                //     addNode(a);
+                //     // addNode(b);
+                // }
                 
-                for (size_t i = 0; i < edgeList.size(); i++) {
+                // m_adjList.resize(edgeList.size());
+                
+                // int place = 0;
+                
+                // for (size_t i = 0; i < edgeList.size(); i++) {
                     
 
-                    int placeHolder = findNodeNum(edgeList[i], nodeList);
-                    Node a = getNode(placeHolder);
-                    int placeHolder1 = findNodeNum(edgeList[++i], nodeList);
-                    Node b = getNode(placeHolder1);
-                    addEdge(a,b, placeHolder);
+                //     int placeHolder = findNodeNum(edgeList[i], nodeList);
+                //     Node a = getNode(placeHolder);
+                //     int placeHolder1 = findNodeNum(edgeList[++i], nodeList);
+                //     Node b = getNode(placeHolder1);
+                //     addEdge(a,b, placeHolder);
                     
-                }
+                // }
             }
         }
 
         void save( const string & file ) const{
+            ofstream MyFile;
+            MyFile.open(file);
+
+
+            for ( int i = 0; i < m_nodes.size(); i ++ ) {
+                
+                Node a = m_nodes[i];
+
+                list<Node> bList = getAdjNodes(a);
+
+                for ( list<Node>::iterator k = bList.begin(); k != bList.end(); k++ ) {
+
+                    MyFile<<a.name()<<"\t"<<k->name()<<endl;
+                }
+
+            }
+                
             
         }
 
@@ -179,16 +235,37 @@ std::ostream& operator<<(std::ostream& out, const Graph & g)
     return out;
 }
 
-
-bool testall() {
+bool testSmall() {
     bool passed = true;
-    Graph g("format.txt");
-    cout<<g;
+    Graph g("test_small.txt");
+    // cout<<g;
     return passed;
 }
 
+bool testBig() {
+    bool passed = true;
+    Graph g("test_big.txt");
+    // cout<<g;
+    return passed;
+}
+
+bool testall() {
+    bool passed = false; 
+    if ( testSmall() ) {
+        passed = true;
+    } 
+    return passed;
+    
+}
+
 int main() {
-    testall();
+    bool passed = testall();
+    if ( passed ) {
+        cout<<"Tests are succesfully!"<<endl;
+    }
+    else {
+        cout<<"Tests Failed! :("<<endl;
+    }
     return 0;
 }
 
@@ -198,8 +275,8 @@ int main() {
 /*** R
  require("igraph")
  links <- data.frame(
-    from=c("a", "a," "c", "d", "e")
-    to=c("d","b","b",c","a" ))
+    from=c("a", "a", "c", "d", "e"),
+    to=c("d","b","b","c","a" ))
 net <- graph_from_data_frame(d=links, directed=T)
 plot(net, vertex.size=30, vertex.label.cex=2)
 
