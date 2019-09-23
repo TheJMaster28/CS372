@@ -35,8 +35,8 @@ class Graph {
             { 
                 scan(file);
                 string NewFileName = file.substr(0,(file.size()-4));
-                cout<<NewFileName<<endl; 
                 save(NewFileName.append("_output.txt"));
+                cout<<"Done with: "<<NewFileName<<endl;
             };
 
         void addEdge ( const Node & a, const Node & b) {
@@ -68,12 +68,10 @@ class Graph {
             myFile.open( file );
             string c1, c2;
             size_t id = 0;
-            size_t edgeId = 0;
 
             // using hash table
             unordered_map<string, size_t > nodeMap;
-            // unordered_map< string, string > edgeMap;
-            int edgeNumber = 0; 
+            // unordered_map< string, string > edgeMap; 
 
             if ( myFile.is_open()) {
                 
@@ -97,29 +95,7 @@ class Graph {
                         pair< string, size_t > node2 ( c2, id++ );
                         nodeMap.insert(node2);
                     }
-                    // edgeNumber++;
-                    // unordered_map< string, string >::const_iterator findEdge = edgeMap.find( c1 );
-
-                    // if ( findEdge == edgeMap.end() || ( findEdge->second.compare(c2) != 0 )) {
-                    //     edgeMap.insert( {c1, c2} );
-                    // }
                     
-
-
-                    // findNode(c1,nodeMap);
-                    // findNode(c2,nodeMap);
-                    // edgeList.push_back(c1);
-                    // edgeList.push_back(c2);
-
-                    // if ( !findNode(c1,nodeList) ) {
-                    //     nodeList.push_back(c1);
-                    //     totalNodes++;
-                    // }
-
-                    // if ( !findNode(c2,nodeList) ) {
-                    //     nodeList.push_back(c2);
-                    //     totalNodes++;
-                    // }
                 }
 
                 m_nodes.resize(nodeMap.size());
@@ -142,53 +118,6 @@ class Graph {
 
                     addEdge(a,b);
                 }
-
-
-                // for ( pair < string, string > node : edgeMap ) {
-
-                //     unordered_map< string, size_t >::const_iterator nodeA = nodeMap.find(node.first);
-
-                //     unordered_map< string, size_t >::const_iterator nodeB = nodeMap.find(node.second);
-
-                //     Node a = getNode(nodeA->second);
-                //     Node b = getNode(nodeB->second);
-                //     addEdge(a,b);
-                    
-                // }
-
-                // m_nodes.resize(nodeMap.size());
-
-                // for ( size_t i = 0; i < nodeMap.size(); i++ ) {
-
-                //     m_nodes[i] = nodeMap[i]
-
-                // }
-                
-                // m_nodes.resize(totalNodes);
-                
-                // for ( size_t i = 0; i < nodeList.size() ; i++) {
-                //     Node a ( nodeList[i], id );
-                //     edgeNum.push_back(id);
-                //     id++;
-                //     // Node b ( nodeList[i], id++ );
-                //     addNode(a);
-                //     // addNode(b);
-                // }
-                
-                // m_adjList.resize(edgeList.size());
-                
-                // int place = 0;
-                
-                // for (size_t i = 0; i < edgeList.size(); i++) {
-                    
-
-                //     int placeHolder = findNodeNum(edgeList[i], nodeList);
-                //     Node a = getNode(placeHolder);
-                //     int placeHolder1 = findNodeNum(edgeList[++i], nodeList);
-                //     Node b = getNode(placeHolder1);
-                //     addEdge(a,b, placeHolder);
-                    
-                // }
             }
         }
 
@@ -197,7 +126,7 @@ class Graph {
             MyFile.open(file);
 
 
-            for ( int i = 0; i < m_nodes.size(); i ++ ) {
+            for ( size_t i = 0; i < m_nodes.size(); i ++ ) {
                 
                 Node a = m_nodes[i];
 
@@ -207,10 +136,7 @@ class Graph {
 
                     MyFile<<a.name()<<"\t"<<k->name()<<endl;
                 }
-
             }
-                
-            
         }
 
 };
@@ -235,36 +161,68 @@ std::ostream& operator<<(std::ostream& out, const Graph & g)
     return out;
 }
 
-bool testSmall() {
+//[[Rcpp::export]]
+
+bool test( const string &s) {
     bool passed = true;
-    Graph g("test_small.txt");
+    Graph g(s);
     // cout<<g;
     return passed;
 }
 
-bool testBig() {
-    bool passed = true;
-    Graph g("test_big.txt");
-    // cout<<g;
-    return passed;
-}
-
+//[[Rcpp::export]]
 bool testall() {
-    bool passed = false; 
-    if ( testSmall() ) {
-        passed = true;
-    } 
+
+    bool passed = true; 
+
+    if ( !test("test_small.txt") ) {
+        passed = false;
+    }
+    
+    if ( !test("test_mid.txt") ) {
+        passed = false;
+    }
+    if ( !test("test_midder.txt") ) {
+        passed = false;
+    }
+    
+    if ( !test("test_big.txt") ) {
+        passed = false;
+    }
+
+    if ( !test("test_really_big.txt") ) {
+        passed = false;
+    }
+
     return passed;
     
 }
 
-int main() {
+
+
+//[[Rcpp::export]]
+void removeFiles() {
+    remove("test_small_output.txt");
+    remove("test_mid_output.txt");
+    remove("test_midder_output.txt");
+    remove("test_big_output.txt");
+    remove("test_really_big_output.txt");
+}
+
+int main( int argc, char* argv[]) {
+
+
     bool passed = testall();
     if ( passed ) {
         cout<<"Tests are succesfully!"<<endl;
     }
     else {
         cout<<"Tests Failed! :("<<endl;
+    }
+    if ( argc >= 2 ) {
+        string args(argv[1]);
+        if ( args.compare("-r") == 0 )
+            removeFiles();
     }
     return 0;
 }
@@ -282,5 +240,101 @@ plot(net, vertex.size=30, vertex.label.cex=2)
 
 net <- graph_from_data_frame(d=links, directed=F)
 plot(net, vertex.size=30, vertex.label.cex=2)
+
+
+#Plot the data read from graph file.
+graph.plot <- function(links){
+    net <- graph_from_data_frame( d=links, directed=T )
+    plot(net, vertex.size=30, vertex.label.cex=2)
+    
+    return (NULL)
+}
+
+#Read the graph file, return the inside data. An option to plot or not plot by specifying plot parameter.
+graph.from.file <- function(input.file, plot=TRUE){
+    ##
+    links <- read.table(input.file, header = FALSE, sep = '\t', quote = "", stringsAsFactors = FALSE)
+    colnames(links) <- c("from", "to")
+    ##
+    if(plot){
+        graph.plot(links)
+    }
+    
+    return (links)
+}
+
+#Compare the two graph from two files. For small examples, use plot=TRUE; for the big one, use plot=FALSE.
+graph.compare <- function(file1, file2, plot=TRUE){
+    g1 <- graph.from.file(file1, plot=FALSE)
+    g2 <- graph.from.file(file2, plot=FALSE)
+    
+    g1 <- g1[order(g1[,1], g1[,2]),]
+    g2 <- g2[order(g2[,1], g2[,2]),]
+    
+    #  print(g1)
+    # print(g2)
+    
+    test <- TRUE
+    test <- test & (nrow(g1) == nrow(g2)) & (ncol(g1) == ncol(g2))
+    test <- test & (sum(g1 == g2) == nrow(g1) * ncol(g1))
+    
+    if(!test){
+        stop("Sorry, not equal!")
+    }else{
+        message("Congratulations!")
+        if(plot){
+            graph.plot(g1)
+            graph.plot(g2)
+        }
+    }
+    
+    return (test)
+}
+
+#Randomly generate big graph file.
+random.graph <- function(number.of.nodes = 100000, number.of.edges = 1000000, output.file = "in_test_big.txt"){
+    nodes <- paste("N", seq(from=1, to=number.of.nodes), sep="")
+    
+    parent.nodes <- c(nodes, nodes[sample(c(1:number.of.nodes), number.of.edges-number.of.nodes, TRUE)])
+    parent.nodes <- parent.nodes[sample(c(1:length(parent.nodes)), length(parent.nodes), FALSE)]
+    
+    child.nodes <- c(nodes, nodes[sample(c(1:number.of.nodes), number.of.edges-number.of.nodes, TRUE)])
+    child.nodes <- child.nodes[sample(c(1:length(child.nodes)), length(child.nodes), FALSE)]
+    
+    links <- data.frame(from = parent.nodes, to = child.nodes)
+    write.table(links, output.file, append = FALSE, sep = '\t', quote = FALSE, row.names = FALSE, col.names = FALSE)
+    message("Scrpt is Done")
+}
+
+random.graph(10, 10, "test_small.txt")
+random.graph(20, 30, "test_mid.txt" )
+random.graph(500, 1000, "test_midder.txt")
+random.graph(100000, 1000000, "test_big.txt")
+random.graph(1000000, 2000000, "test_really_big.txt")
+
+testall()
+
+if ( !graph.compare("test_small.txt", "test_small_output.txt", plot = TRUE) ) {
+    exit("Test Failed")
+}
+
+if ( !graph.compare("test_mid.txt", "test_mid_output.txt", plot = TRUE) ) {
+    exit("Test Failed")
+}
+
+if ( !graph.compare("test_midder.txt", "test_midder_output.txt", plot = FALSE) ) {
+    exit("Test Falied")
+}
+
+if ( !graph.compare("test_big.txt", "test_big_output.txt", plot = FALSE) ) {
+    exit("Test Failed")
+}
+
+if ( !graph.compare("test_really_big.txt", "test_really_big_output.txt", plot = FALSE) ) {
+    exit("Test Failed")
+}
+
+removeFiles()
+
 
  */
