@@ -9,7 +9,6 @@ using namespace std;
 
 // [[Rcpp::plugins(cpp11)]]
 
-
 class Node {
 
     private:
@@ -29,7 +28,6 @@ class Graph {
         vector< Node > m_nodes;
         vector< list<Node> > m_adjList;
 
-    
     public:
         Graph ( const string & file )
             { 
@@ -40,18 +38,13 @@ class Graph {
             };
 
         void addEdge ( const Node & a, const Node & b) {
-            // cout<<"BLAH"<<endl;
-
             list<Node> l = m_adjList[a.id()];
-            // l.push_back(a);
             l.push_back(b);
-            // m_adjList.resize;
             m_adjList[a.id()] = l;
             
         }
 
-        void addNode( const Node & a ) { 
-            m_nodes[a.id()] = a;};
+        void addNode( const Node & a ) { m_nodes[a.id()] = a; };
 
         const Node & getNode(size_t i) const { return m_nodes[i]; }
 
@@ -75,14 +68,12 @@ class Graph {
 
             if ( myFile.is_open()) {
                 
+                // goes through file and adds nodes to a hash table  
                 while ( myFile >> c1 >> c2) {
-                    
-                    // get total nodes first
-                    
+                    // Find node to make sure it is not already found  
                     unordered_map< string, size_t >::const_iterator nodeA = nodeMap.find(c1);
-
                     
-                    
+                    // if nout found add to hash table
                     if ( nodeA == nodeMap.end() ) {
                         pair< string, size_t > node1 ( c1, id++ );
                         nodeMap.insert(node1);
@@ -98,42 +89,49 @@ class Graph {
                     
                 }
 
+                // resizes Vectors to make inserting elements quicker and have allcated space
                 m_nodes.resize(nodeMap.size());
                 m_adjList.resize(nodeMap.size());
 
+                // goes through hash table of nodes and adds them to m_nodes vector
                 for ( pair <string, size_t> node : nodeMap ) {
                     Node a ( node.first, node.second );
                     addNode(a);
                 }
+
+                // reopen file
                 myFile.close();
                 myFile.open(file);
+                
+                // goes through file again and adds edges to the m_adjList vector
                 while ( myFile >> c1 >> c2) {
                     
+                    // find both nodes in hash table
                     unordered_map< string, size_t >::const_iterator nodeA = nodeMap.find(c1);
-
                     unordered_map< string, size_t >::const_iterator nodeB = nodeMap.find(c2);
                     
+                    // get both nodes and add edge
                     Node a = getNode(nodeA->second);
                     Node b = getNode(nodeB->second);
-
                     addEdge(a,b);
                 }
             }
         }
 
-        void save( const string & file ) const{
+        void save( const string & file ) const {
+            // get file for outputing 
             ofstream MyFile;
             MyFile.open(file);
 
-
+            // goes through each nodes list and writes the edge tab-spaced
             for ( size_t i = 0; i < m_nodes.size(); i ++ ) {
                 
-                Node a = m_nodes[i];
-
+                // get adjacent nodes
+                Node a = getNode(i);
                 list<Node> bList = getAdjNodes(a);
 
+                // goes through list and writes it to output file
                 for ( list<Node>::iterator k = bList.begin(); k != bList.end(); k++ ) {
-
                     MyFile<<a.name()<<"\t"<<k->name()<<endl;
                 }
             }
@@ -162,11 +160,37 @@ std::ostream& operator<<(std::ostream& out, const Graph & g)
 }
 
 //[[Rcpp::export]]
-
 bool test( const string &s) {
     bool passed = true;
     Graph g(s);
     // cout<<g;
+    return passed;
+}
+
+//[[Rcpp::export]]
+bool testBig() {
+    bool passed = true;
+    if ( !test("test_big.txt") ) {
+        passed = false;
+    }
+    return passed;
+}
+
+//[[Rcpp::export]]
+bool testReallyBig() {
+    bool passed = true;
+    if ( !test("test_really_big.txt") ) {
+        passed = false;
+    }
+    return passed;
+}
+
+//[[Rcpp::export]]
+bool testMidder() {
+    bool passed = true;
+    if ( !test("test_midder.txt")) {
+        passed = false;
+    }
     return passed;
 }
 
@@ -232,14 +256,7 @@ int main( int argc, char* argv[]) {
 
 /*** R
  require("igraph")
- links <- data.frame(
-    from=c("a", "a", "c", "d", "e"),
-    to=c("d","b","b","c","a" ))
-net <- graph_from_data_frame(d=links, directed=T)
-plot(net, vertex.size=30, vertex.label.cex=2)
 
-net <- graph_from_data_frame(d=links, directed=F)
-plot(net, vertex.size=30, vertex.label.cex=2)
 
 
 #Plot the data read from graph file.
@@ -307,12 +324,18 @@ random.graph <- function(number.of.nodes = 100000, number.of.edges = 1000000, ou
 }
 
 random.graph(10, 10, "test_small.txt")
-random.graph(20, 30, "test_mid.txt" )
-random.graph(500, 1000, "test_midder.txt")
+random.graph(10, 30, "test_mid.txt" )
+random.graph(50000, 500000, "test_midder.txt")
 random.graph(100000, 1000000, "test_big.txt")
 random.graph(1000000, 2000000, "test_really_big.txt")
 
 testall()
+
+runtimeMidder <- system.time(testMidder())[["user.self"]]
+
+runtimeBig <- system.time(testBig())[["user.self"]]
+
+runtimeReallyBig <- system.time(testReallyBig())[["user.self"]]
 
 if ( !graph.compare("test_small.txt", "test_small_output.txt", plot = TRUE) ) {
     exit("Test Failed")
@@ -334,7 +357,8 @@ if ( !graph.compare("test_really_big.txt", "test_really_big_output.txt", plot = 
     exit("Test Failed")
 }
 
-removeFiles()
+# Comment this out if you do not want output files to be deleted 
+# removeFiles()
 
 
  */
