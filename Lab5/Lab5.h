@@ -18,6 +18,8 @@ class Node {
 
     public:
         Node() { 
+            pre = 0;
+            post = 0;
         };
         Node( const string & name, int id)
             {m_name = name, m_id = id;};
@@ -64,17 +66,17 @@ class Graph {
         
         size_t num_nodes() const { return m_nodes.size(); }
 
-        int NodeGetPre( Node & a) { a.getPre(); }
+        int NodeGetPre( Node & a) { getNode(a.id()).getPre(); }
 
-        int NodeGetPost( Node & a) { a.getPost(); }
+        int NodeGetPost( Node & a) { getNode(a.id()).getPost(); }
         
-        bool NodeGetVist( Node & a) { a.getVisted(); }
+        bool NodeGetVist( Node & a) { getNode(a.id()).getVisted(); }
 
-        void NodeSetPre ( Node & a, int i) { a.setPre(i); }
+        void NodeSetPre ( Node & a, int i) { getNode(a.id()).setPre(i); }
 
-        void NodeSetPost ( Node & a, int i) { a.setPost(i); }
+        void NodeSetPost ( Node & a, int i) { getNode(a.id()).setPost(i); }
 
-        void NodeSetVisted( Node & a, bool i) { a.setVisted(i); }
+        void NodeSetVisted( Node & a, bool i) { getNode(a.id()).setVisted(i); }
 
         void scan(const string & file ){
             ifstream myFile;

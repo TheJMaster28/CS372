@@ -1,5 +1,5 @@
 #include "Lab5.h"
-
+#include <stack>
 // [[Rcpp::plugins(cpp11)]]
 
 
@@ -37,10 +37,65 @@ void DFS_recursive(Graph &G) {
     }
 }
 
-void DFS_iterative(Graph &G) {
-    NodeClock = 0;
+void exploreIt ( Graph &G, Node v) {
+    
+
+    // Use Two loops you fucking idoit!!!!!
+
+    
+    stack<Node> DiscoveredNodes;
+    stack<Node> ProcessedNodes;
+    DiscoveredNodes.push(G.getNode(v.id()));
+    while (!DiscoveredNodes.empty()) {
+        Node a = DiscoveredNodes.top();
+        ProcessedNodes.push(a);
+        DiscoveredNodes.pop();
+        a.setPre(++NodeClock);
+        a.setVisted(true);
+        G.addNode(a);
+        list< Node > aAdjList = G.getAdjNodes(a);
+        bool cont = false;
+        for ( Node b : aAdjList) {
+            if ( !G.getNode(b.id()).getVisted() ) {
+                DiscoveredNodes.push(G.getNode(b.id()));
+                cont = true;
+            }
+        }
+    }
+    while ( !ProcessedNodes.empty() ) {
+        Node a = ProcessedNodes.top();
+        ProcessedNodes.pop();
+        a.setPost(++NodeClock);
+    }
+    
 }
 
+void DFS_iterative(Graph &G) {
+    NodeClock = 0;
+    for ( size_t i = 0; i < G.num_nodes(); i++ ) {
+        Node a = G.getNode(i);
+        if ( !a.getVisted() ) {
+            exploreIt(G, a);
+        }
+    }
+}
+
+
+bool checkAnswers (vector<vector<int>> answers, Graph g ) {
+    bool passed = true;
+    for ( size_t i = 0; i < g.num_nodes(); i++ ) {
+        Node a = g.getNode(i);
+        vector<int> anw = answers[i];
+
+        if ( a.getPre() != anw[0] && a.getPost() != anw[1] ) {
+            cout<<"Graph Pre: " <<a.getPre()<<" Post: "<<a.getPost()<<endl;
+            cout<<"Answer: Pre: "<<anw[0]<<" Post: "<<anw[1]<<endl;
+            passed = false;
+        }
+    }
+
+    return passed;
+}
 
 bool testSCC () {
     bool passed = true;
@@ -50,15 +105,26 @@ bool testSCC () {
         {1,6}, {2,5}, {3,4}, {7,8}, {9,18}, {10,17}, {11,16}, {12,15}, {13,14} 
     };
 
-    for ( size_t i = 0; i < g.num_nodes(); i++ ) {
-        Node a = g.getNode(i);
-        vector<int> anw = answers[i];
 
-        if ( a.getPre() != anw[0] && a.getPost() != anw[1] ) {
-            passed = false;
-        }
-    }
+    passed = checkAnswers(answers, g);
+
+    Graph g1("test_scc.txt");
+    DFS_iterative(g1);
+
+    passed = checkAnswers(answers,g1);
+
     return passed;
+
+
+
+    // for ( size_t i = 0; i < g.num_nodes(); i++ ) {
+    //     Node a = g.getNode(i);
+    //     vector<int> anw = answers[i];
+
+    //     if ( a.getPre() != anw[0] && a.getPost() != anw[1] ) {
+    //         passed = false;
+    //     }
+    // }
 }
 
 bool testall() {
