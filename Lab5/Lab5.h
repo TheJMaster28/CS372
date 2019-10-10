@@ -18,11 +18,9 @@ class Node {
 
     public:
         Node() { 
-            pre = 0;
-            post = 0;
         };
         Node( const string & name, int id)
-            {m_name = name, m_id = id;};
+            {m_name = name, m_id = id; pre = 0; post = 0; visted=false;};
         int id () const { return m_id;};
         const string & name() const { return m_name;};
         void setPre(int i) {pre = i;}
@@ -37,6 +35,8 @@ class Graph {
     private:
         vector< Node > m_nodes;
         vector< list<Node> > m_adjList;
+
+
 
     public:
         Graph ( const string & file )
@@ -72,11 +72,31 @@ class Graph {
         
         bool NodeGetVist( Node & a) { getNode(a.id()).getVisted(); }
 
-        void NodeSetPre ( Node & a, int i) { getNode(a.id()).setPre(i); }
+        void NodeSetPre ( Node & a, int i) { 
+            Node node = getNode(a.id()); 
+            node.setPre(i);
+            addNode(node);
+        }
 
-        void NodeSetPost ( Node & a, int i) { getNode(a.id()).setPost(i); }
+        void NodeSetPost ( Node & a, int i) { 
+            Node node = getNode(a.id()); 
+            node.setPost(i);
+            addNode(node);
+        }
 
-        void NodeSetVisted( Node & a, bool i) { getNode(a.id()).setVisted(i); }
+        void NodeSetVisted( Node & a, bool i) { 
+            Node node = getNode(a.id());
+            node.setVisted(i);
+            addNode(node);
+        }
+
+        void Reset() {
+            for ( size_t i = 0; i < m_nodes.size(); i++ ) {
+                NodeSetVisted(m_nodes[i],false);
+                NodeSetPre(m_nodes[i], 0);
+                NodeSetPost(m_nodes[i], 0);
+            }
+        }
 
         void scan(const string & file ){
             ifstream myFile;
@@ -137,6 +157,7 @@ class Graph {
                     Node b = getNode(nodeB->second);
                     addEdge(a,b);
                 }
+                myFile.close();
             }
         }
 
@@ -157,6 +178,8 @@ class Graph {
                     MyFile<<a.name()<<"\t"<<k->name()<<endl;
                 }
             }
+
+            MyFile.close();
         }
 
 };

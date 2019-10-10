@@ -6,9 +6,8 @@
 int NodeClock = 0;
 
 void explore ( Graph &G, Node &v) {
-    v.setVisted(true);
-    v.setPre(++NodeClock);
-    G.addNode(v);
+    G.NodeSetVisted(v,true);
+    G.NodeSetPre(v,++NodeClock);
     list<Node> vAdjNodes = G.getAdjNodes(v);
     for ( Node i : vAdjNodes ) {
         Node a = G.getNode(i.id());
@@ -17,16 +16,14 @@ void explore ( Graph &G, Node &v) {
         }
 
     }
-    v.setPost(++NodeClock);
-    G.addNode(v);
+    G.NodeSetPost(v,++NodeClock);
 }
 
 void DFS_recursive(Graph &G) {
     NodeClock = 0;
     for ( size_t i = 0; i < G.num_nodes(); i++ ) {
         Node a = G.getNode(i);
-        a.setVisted(false);
-        G.addNode(a);
+        G.NodeSetVisted(a,false);
     }
 
     for ( size_t i = 0; i < G.num_nodes(); i++ ) {
@@ -38,36 +35,32 @@ void DFS_recursive(Graph &G) {
 }
 
 void exploreIt ( Graph &G, Node v) {
-    
-
-    // Use Two loops you fucking idoit!!!!!
-
-    
     stack<Node> DiscoveredNodes;
-    stack<Node> ProcessedNodes;
-    DiscoveredNodes.push(G.getNode(v.id()));
-    while (!DiscoveredNodes.empty()) {
-        Node a = DiscoveredNodes.top();
-        ProcessedNodes.push(a);
-        DiscoveredNodes.pop();
-        a.setPre(++NodeClock);
-        a.setVisted(true);
-        G.addNode(a);
-        list< Node > aAdjList = G.getAdjNodes(a);
-        bool cont = false;
-        for ( Node b : aAdjList) {
-            if ( !G.getNode(b.id()).getVisted() ) {
-                DiscoveredNodes.push(G.getNode(b.id()));
-                cont = true;
+    list< Node > aAdjList;
+    
+    DiscoveredNodes.push(v);
+    
+    while ( !DiscoveredNodes.empty() ) {
+
+        aAdjList = G.getAdjNodes(DiscoveredNodes.top());
+
+        if ( !G.NodeGetVist(DiscoveredNodes.top())) {
+            G.NodeSetPre(DiscoveredNodes.top(),++NodeClock);
+            G.NodeSetVisted(DiscoveredNodes.top(),true);
+        }
+        
+        for ( Node b: aAdjList ) {
+            if ( !G.NodeGetVist(b) ) {
+                DiscoveredNodes.push(b);
             }
+            
+        }
+
+        if ( G.NodeGetVist(DiscoveredNodes.top()) ) {
+            G.NodeSetPost(DiscoveredNodes.top(), ++NodeClock);
+            DiscoveredNodes.pop();
         }
     }
-    while ( !ProcessedNodes.empty() ) {
-        Node a = ProcessedNodes.top();
-        ProcessedNodes.pop();
-        a.setPost(++NodeClock);
-    }
-    
 }
 
 void DFS_iterative(Graph &G) {
@@ -99,6 +92,7 @@ bool checkAnswers (vector<vector<int>> answers, Graph g ) {
 
 bool testSCC () {
     bool passed = true;
+    
     Graph g("test_scc.txt");
     DFS_recursive(g);
     vector< vector<int> > answers = {
@@ -108,10 +102,11 @@ bool testSCC () {
 
     passed = checkAnswers(answers, g);
 
-    Graph g1("test_scc.txt");
-    DFS_iterative(g1);
+    // Graph g1("test_scc.txt");
+    g.Reset();
+    DFS_iterative(g);
 
-    passed = checkAnswers(answers,g1);
+    passed = checkAnswers(answers,g);
 
     return passed;
 
