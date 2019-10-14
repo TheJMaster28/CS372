@@ -57,7 +57,8 @@ void exploreIt ( Graph &G, Node v) {
         }
 
         if ( G.NodeGetVist(DiscoveredNodes.top()) ) {
-            G.NodeSetPost(DiscoveredNodes.top(), ++NodeClock);
+            if ( G.NodeGetPost(DiscoveredNodes.top()) == 0 ) 
+                G.NodeSetPost(DiscoveredNodes.top(), ++NodeClock);
             DiscoveredNodes.pop();
         }
     }
@@ -81,12 +82,13 @@ bool checkAnswers (vector<vector<int>> answers, Graph g ) {
         vector<int> anw = answers[i];
 
         if ( a.getPre() != anw[0] && a.getPost() != anw[1] ) {
+            cout<<g.NodeGetName(a)<<":"<<endl;
             cout<<"Graph Pre: " <<a.getPre()<<" Post: "<<a.getPost()<<endl;
-            cout<<"Answer: Pre: "<<anw[0]<<" Post: "<<anw[1]<<endl;
+            cout<<"Answer: Pre: "<<anw[0]<<" Post: "<<anw[1]<<endl<<endl;
             passed = false;
         }
     }
-
+    cout<<endl;
     return passed;
 }
 
@@ -98,19 +100,40 @@ bool testSCC () {
     vector< vector<int> > answers = {
         {1,6}, {2,5}, {3,4}, {7,8}, {9,18}, {10,17}, {11,16}, {12,15}, {13,14} 
     };
-
-
     passed = checkAnswers(answers, g);
-
-    // Graph g1("test_scc.txt");
+    
     g.Reset();
     DFS_iterative(g);
-
     passed = checkAnswers(answers,g);
 
+    //             a       b       c       d       e         f      h        g       j        i        k                
+    answers = { {1,22}, {2,21}, {3,18}, {15,16}, {14,17}, {19,20}, {4,13}, {5,12}, {6,11}, {7,10}, {8,9} };
+
+    Graph g1("test_undir.txt");
+    DFS_recursive(g1);
+    passed = checkAnswers(answers, g1);
+    cout<<g1<<endl;
+    g1.Reset();
+
+    //             a       b       c       d    e         f      h        g       j        i        k                
+    answers = { {1,22}, {3,20}, {4,19}, {6,7}, {5,8}, {2,21}, {9,18}, {10,17}, {11,16}, {13,14}, {12,15} };
+    DFS_iterative(g1);
+    passed = checkAnswers(answers,g1);
+    cout<<g1;
+
+    Graph g2("test_acyc.txt");
+    answers = { {1,8}, {2,7}, {3,6}, {4,5} };
+    DFS_recursive(g2);
+    passed = checkAnswers(answers, g2);
+    g2.Reset();
+
+    answers = { {1,8}, {4,5}, {2,7}, {3,6} };
+    DFS_iterative(g2);
+    passed = checkAnswers(answers, g2);
+    cout<<g2;
+
+
     return passed;
-
-
 
     // for ( size_t i = 0; i < g.num_nodes(); i++ ) {
     //     Node a = g.getNode(i);

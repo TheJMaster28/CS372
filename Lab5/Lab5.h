@@ -15,7 +15,6 @@ class Node {
         int pre;
         int post;
         bool visted;
-
     public:
         Node() { 
         };
@@ -65,6 +64,8 @@ class Graph {
             {return m_adjList[a.id()];}
         
         size_t num_nodes() const { return m_nodes.size(); }
+
+        string NodeGetName( Node &a) { return getNode(a.id()).name(); }
 
         int NodeGetPre( Node & a) { getNode(a.id()).getPre(); }
 
