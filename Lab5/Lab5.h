@@ -96,6 +96,7 @@ class Graph {
                 NodeSetVisted(m_nodes[i],false);
                 NodeSetPre(m_nodes[i], 0);
                 NodeSetPost(m_nodes[i], 0);
+		cout<<"Resetting Graph...\n"<<endl;
             }
         }
 
