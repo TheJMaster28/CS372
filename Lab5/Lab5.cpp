@@ -95,7 +95,7 @@ bool checkAnswers (vector<vector<int>> answers, Graph g ) {
 bool testSCC () {
     bool passed = true;
     
-    Graph g("test_scc.txt");
+    Graph g("test_dir.txt");
     DFS_recursive(g);
     vector< vector<int> > answers = {
         {1,6}, {2,5}, {3,4}, {7,8}, {9,18}, {10,17}, {11,16}, {12,15}, {13,14} 
@@ -112,14 +112,14 @@ bool testSCC () {
     Graph g1("test_undir.txt");
     DFS_recursive(g1);
     passed = checkAnswers(answers, g1);
-    cout<<g1<<endl;
+    // cout<<g1<<endl;
     g1.Reset();
 
     //             a       b       c       d    e         f      h        g       j        i        k                
     answers = { {1,22}, {3,20}, {4,19}, {6,7}, {5,8}, {2,21}, {9,18}, {10,17}, {11,16}, {13,14}, {12,15} };
     DFS_iterative(g1);
     passed = checkAnswers(answers,g1);
-    cout<<g1;
+    // cout<<g1;
 
     Graph g2("test_acyc.txt");
     answers = { {1,8}, {2,7}, {3,6}, {4,5} };
@@ -130,8 +130,31 @@ bool testSCC () {
     answers = { {1,8}, {4,5}, {2,7}, {3,6} };
     DFS_iterative(g2);
     passed = checkAnswers(answers, g2);
-    cout<<g2;
+    // cout<<g2;
 
+    Graph g3("test_ncyc.txt");
+    answers = { {1,18}, {2,17}, {3,12}, {13,16}, {4,11}, {14,15}, {7,10}, {8,9}, {5,6} };
+    DFS_recursive(g3);
+    passed = checkAnswers(answers, g3);
+    // cout<<g3;
+    g3.Reset();
+
+    answers = { {1,18}, {2,17}, {15,16}, {3,14}, {12,13}, {4,11}, {5,10}, {6,9}, {7,8} };
+    DFS_iterative(g3);
+    passed = checkAnswers(answers, g3);
+    // cout<<g3;
+
+    Graph g4("test_conn.txt");
+    answers = { {1,8}, {2,7}, {3,4}, {9,16}, {10,13}, {5,6}, {17,20}, {18,19}, {11,12}, {21,22}, {23,24}, {25,30}, {31,32}, {14,15}, {33,34}, {26,29}, {27,28}  };
+    DFS_recursive(g4);
+    passed = checkAnswers(answers, g4);
+    // cout<<g4;
+    g4.Reset();
+
+    answers = { {1,8}, {2,7}, {5,6}, {9,16}, {12,15}, {3,4}, {17,20}, {18,19}, {13,14}, {21,22}, {23,24}, {25,30}, {31,32}, {10,11}, {33,34}, {26,29}, {27,28} };
+    DFS_iterative(g4);
+    passed = checkAnswers(answers, g4);
+    // cout<<g4;
 
     return passed;
 
