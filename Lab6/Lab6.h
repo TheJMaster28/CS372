@@ -197,7 +197,7 @@ std::ostream& operator<<(std::ostream& out, const Graph & g)
     out << endl;
     out << "Adjacency list of the graph :" << endl;
     for ( unsigned i=0; i<g.num_nodes(); i++) {
-        out << "Node " << g.getNode(i).name() << ":";
+        out << "Node " << g.getNode(i).name() << ", " <<g.getNode(i).id() << ":";
         const list <Node> neighbors = g.getAdjNodes(g.getNode(i));
         for ( list <Node>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr) {
             out << itr -> name() << ",";
@@ -209,91 +209,4 @@ std::ostream& operator<<(std::ostream& out, const Graph & g)
 }
 
 
-int NodeClock = 0;
-
-void explore ( Graph &G, Node &v) {
-    // set node to visted and previst time
-    G.NodeSetVisted(v,true);
-    G.NodeSetPre(v,++NodeClock);
-    // get adjacent nodes
-    list<Node> vAdjNodes = G.getAdjNodes(v);
-    for ( Node i : vAdjNodes ) {
-        // recursively go explore unvisted nodes
-        if ( !G.NodeGetVist(i) ) {
-            explore(G, i);
-        }
-
-    }
-    // set post
-    G.NodeSetPost(v,++NodeClock);
-}
-
-void DFS_recursive(Graph &G) {
-    // set globel node clock to track pre and post times
-    NodeClock = 0;
-    // set all nodes to false
-    for ( size_t i = 0; i < G.num_nodes(); i++ ) {
-        Node a = G.getNode(i);
-        G.NodeSetVisted(a,false);
-    }
-
-    for ( size_t i = 0; i < G.num_nodes(); i++ ) {
-        Node a = G.getNode(i);
-        if ( !a.getVisted() ) {
-            explore(G, a);
-        }
-    }
-}
-
-void exploreIt ( Graph &G, Node v) {
-    // create stack 
-    stack<Node> DiscoveredNodes;
-    // create list
-    list< Node > aAdjList;
     
-    // push source node into stack
-    DiscoveredNodes.push(v);
-    
-    while ( !DiscoveredNodes.empty() ) {
-        // set previst and visted if top is not visted
-        if ( !G.NodeGetVist(DiscoveredNodes.top())) {
-            G.NodeSetPre(DiscoveredNodes.top(),++NodeClock);
-            G.NodeSetVisted(DiscoveredNodes.top(),true);
-        }
-        
-        // get adjacent nodes of top
-        aAdjList = G.getAdjNodes(DiscoveredNodes.top());
-        
-        // push not visted nodes in stack
-        for ( Node b: aAdjList ) {
-            if ( !G.NodeGetVist(b) ) {
-                DiscoveredNodes.push(b);
-            }
-            
-        }
-
-        // if top has been visted
-        if ( G.NodeGetVist(DiscoveredNodes.top()) ) {
-            // set Post vist if it has not been set before
-            if ( G.NodeGetPost(DiscoveredNodes.top()) == 0 ) 
-                G.NodeSetPost(DiscoveredNodes.top(), ++NodeClock);
-            // pop off of stack to explore other nodes
-            DiscoveredNodes.pop();
-        }
-    }
-}
-
-void DFS_iterative(Graph &G) {
-    NodeClock = 0;
-    // set all nodes visted to false
-     for ( size_t i = 0; i < G.num_nodes(); i++ ) {
-        Node a = G.getNode(i);
-        G.NodeSetVisted(a,false);
-    }
-    for ( size_t i = 0; i < G.num_nodes(); i++ ) {
-        Node a = G.getNode(i);
-        if ( !a.getVisted() ) {
-            exploreIt(G, a);
-        }
-    }
-}
