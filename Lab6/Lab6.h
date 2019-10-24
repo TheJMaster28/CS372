@@ -35,12 +35,14 @@ class Graph {
     private:
         vector< Node > m_nodes;
         vector< list<Node> > m_adjList;
-
+        string fileName;
 
 
     public:
+        
         Graph ( const string & file )
             { 
+                fileName = file;
                 scan(file);
                 string NewFileName = file.substr(0,(file.size()-4));
                 save(NewFileName.append("_output.txt"));
@@ -53,10 +55,17 @@ class Graph {
             m_adjList[a.id()] = l;
             
         }
+        
+        string getFileName() { return fileName; }
 
         void addNode( const Node & a ) { m_nodes[a.id()] = a; };
 
         const Node & getNode(size_t i) const { return m_nodes[i]; }
+
+        void clearAdjNodes ( const Node & a) {
+            list<Node> empty;
+            m_adjList[a.id()] = empty;
+        }
 
         list<Node> & getAdjNodes ( const Node & a)
             {return m_adjList[a.id()];}
@@ -100,6 +109,8 @@ class Graph {
             }
 		    cout<<"Resetting Graph...\n"<<endl;
         }
+
+        
 
         void scan(const string & file ){
             ifstream myFile;
