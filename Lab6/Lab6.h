@@ -46,7 +46,7 @@ class Graph {
                 scan(file);
                 string NewFileName = file.substr(0,(file.size()-4));
                 save(NewFileName.append("_output.txt"));
-                cout<<"Done with: "<<NewFileName<<endl;
+                // cout<<"Done with: "<<NewFileName<<endl;
             };
 
         void addEdge ( const Node & a, const Node & b) {

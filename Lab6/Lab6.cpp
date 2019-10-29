@@ -74,6 +74,25 @@ void explore ( Graph &G, Node &v) {
     G.NodeSetPost(v,++NodeClock);
 }
 
+
+void explore ( Graph &G, Node &v, vector<size_t> &cc, size_t ccNum) {
+    // set node to visted and previst time
+    G.NodeSetVisted(v,true);
+    G.NodeSetPre(v,++NodeClock);
+    cc[v.id()] = ccNum;
+    // get adjacent nodes
+    list<Node> vAdjNodes = G.getAdjNodes(v);
+    for ( Node i : vAdjNodes ) {
+        // recursively go explore unvisted nodes
+        if ( !G.NodeGetVist(i) ) {
+            explore(G, i, cc, ccNum);
+        }
+
+    }
+    // set post
+    G.NodeSetPost(v,++NodeClock);
+}
+
 void DFS_recursive(Graph &G) {
     // set globel node clock to track pre and post times
     NodeClock = 0;
@@ -93,7 +112,9 @@ void DFS_recursive(Graph &G) {
 
 vector < size_t > find_connected_components ( Graph & G ) {
 
-    vector < size_t > ccNum;
+    vector < size_t > cc;
+    cc.resize(G.num_nodes());
+    size_t ccNum= 0;
     // set globel node clock to track pre and post times
     NodeClock = 0;
     // set all nodes to false
@@ -105,12 +126,11 @@ vector < size_t > find_connected_components ( Graph & G ) {
     for ( size_t i = 0; i < G.num_nodes(); i++ ) {
         Node a = G.getNode(i);
         if ( !a.getVisted() ) {
-            ccNum.push_back(a.id());
-            explore(G, a);
+            explore(G, a,cc, ccNum++);
         }
     }
 
-    return ccNum;
+    return cc;
 
 
 }
@@ -139,7 +159,7 @@ vector < size_t > find_strongly_connected_components ( Graph & G) {
     
     Graph gR = reverse(G);
     DFS_recursive(gR);
-    cout <<gR;
+    // cout <<gR;
 
     vector < Node > orderPost;
 
@@ -152,6 +172,7 @@ vector < size_t > find_strongly_connected_components ( Graph & G) {
     }
     
     for ( size_t i = 0; i < gR.num_nodes(); i++ ) { 
+        max = nodesList[0];
         int place = 0;
         for ( size_t k = 0; k < nodesList.size(); k++ ) { 
             Node a = nodesList[k];
@@ -165,61 +186,97 @@ vector < size_t > find_strongly_connected_components ( Graph & G) {
     }
 
 
-
     
      
 
-    vector < size_t > ccNum;
+    vector < size_t > cc;
+    cc.resize(G.num_nodes());
+    size_t ccNum = 0;
     // set globel node clock to track pre and post times
     NodeClock = 0;
     // set all nodes to false
     for ( size_t i = 0; i < orderPost.size(); i++ ) {
-        Node a = G.getNode(i);
+        Node a = G.getNode(orderPost[i].id());
         G.NodeSetVisted(a,false);
     }
 
     for ( size_t i = 0; i < orderPost.size(); i++ ) {
-        Node a = G.getNode(i);
+        Node a = G.getNode(orderPost[i].id());
         if ( !a.getVisted() ) {
-            ccNum.push_back(a.id());
-            explore(G, a);
+            explore(G, a, cc, ccNum++);
         }
     }
 
-    return ccNum;
+    return cc;
 
 }
 
 void printVector( vector<size_t>  &a) {
     for ( size_t i = 0; i < a.size(); i++) {
-        cout<<a[i]<<' ';
+        cout<<i<<":"<<a[i]<<' ';
     }
     cout << endl;
 }
 
-bool testall() {
-    bool passed = true;
-    Graph g("test.txt");
+
+bool testCC(string s, vector<size_t> answer) {
+    cout<<"Testing Connected Component "<<s<<endl;
+    Graph g(s);
     cout<<g;
     vector<size_t> connectedComponets = find_connected_components(g);
 
+    cout<<"\nAnswer:"<<endl;
     printVector(connectedComponets);
 
-    Graph g1("test_scc_0.txt");
 
+    cout<<"----------------------------------------------------------------------------------------------------------------------------------"<<endl;
+    if ( answer.size() != connectedComponets.size() ) { return false; }
+    for (size_t i = 0; i < answer.size(); i++) {
+        if ( connectedComponets[i] != answer[i] ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool testSCC(string s, vector<size_t> answer) {
+
+    cout<<"Testing Strongly Connected Component "<<s<<endl;
+    Graph g1(s);
     cout<<g1;
-
     vector<size_t> strongConnectedComponets = find_strongly_connected_components(g1);
-
+    cout<<"\nAnswer:"<<endl;
     printVector(strongConnectedComponets);
 
-    Graph g2("test_scc_1.txt");
+    cout<<"----------------------------------------------------------------------------------------------------------------------------------"<<endl;
+    if ( answer.size() != strongConnectedComponets.size() ) { return false; }
+    for (size_t i = 0; i < answer.size(); i++) {
+        if ( strongConnectedComponets[i] != answer[i] ) {
+            return false;
+        }
+    }
+    return true;
+}
 
-    strongConnectedComponets = find_strongly_connected_components(g2);
 
-    printVector(strongConnectedComponets);
+bool testall() {
 
-    return passed;
+    if ( !testCC("test.txt",{0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,2}) ) {
+        cout<<"Test 1 Failed"<<endl;
+        return false;
+    }
+
+    if ( !testSCC("test_scc_0.txt",{2,2,2,0,0,0,0,0,1}) ) {
+        cout<<"Test 2 Failed"<<endl;
+        return false;
+    }
+    
+    if ( !testSCC("test_scc_1.txt",{}) ) {
+        cout<<"Test 3 Failed"<<endl;
+        return false;
+    }
+
+    return true;
 }
 
 int main () {
