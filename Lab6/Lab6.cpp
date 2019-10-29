@@ -159,16 +159,16 @@ vector < size_t > find_strongly_connected_components ( Graph & G) {
     
     Graph gR = reverse(G);
     DFS_recursive(gR);
-    // cout <<gR;
+    cout <<gR;
 
     vector < Node > orderPost;
 
-    Node max = gR.getNode(0);
+    Node max;
     vector < Node > nodesList;
     nodesList.resize(gR.num_nodes());
 
     for ( size_t i = 0; i < gR.num_nodes(); i++ ) {
-        nodesList.push_back(gR.getNode(i));
+        nodesList[i] = gR.getNode(i);
     }
     
     for ( size_t i = 0; i < gR.num_nodes(); i++ ) { 
@@ -261,18 +261,56 @@ bool testSCC(string s, vector<size_t> answer) {
 
 bool testall() {
 
-    if ( !testCC("test.txt",{0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,2}) ) {
-        cout<<"Test 1 Failed"<<endl;
+    // Connected Components
+    if ( !testCC("test_cc_0.txt",{0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,2}) ) {
+        cout<<"Coneccted Components Test 1 Failed"<<endl;
         return false;
     }
 
-    if ( !testSCC("test_scc_0.txt",{2,2,2,0,0,0,0,0,1}) ) {
-        cout<<"Test 2 Failed"<<endl;
+    if ( !testCC("test_cc_1.txt",{0,0,0,0,1,1,1}) ) {
+        cout<<"Coneccted Components Test 2 Failed"<<endl;
+        return false;
+    }
+
+
+    if ( !testCC("test_cc_2.txt",{0,0,0,0,0,0}) ) {
+        cout<<"Coneccted Components Test 3 Failed"<<endl;
+        return false;
+    }
+
+    if ( !testCC("test_cc_3.txt",{0,0,0,0,0,0,1,1,1,2,2}) ) {
+        cout<<"Coneccted Components Test 4 Failed"<<endl;
+        return false;
+    }
+
+    if ( !testCC("test_cc_4.txt",{0,0,0,0,0,0}) ) {
+        cout<<"Coneccted Components Test 5 Failed"<<endl;
+        return false;
+    }
+
+    // Strongly Connected Components
+    if ( !testSCC("test_scc_0.txt",{2,2,2,3,4,4,0,0,1}) ) {
+        cout<<"Strongly Connected Components Test 1 Failed"<<endl;
         return false;
     }
     
-    if ( !testSCC("test_scc_1.txt",{}) ) {
-        cout<<"Test 3 Failed"<<endl;
+    if ( !testSCC("test_scc_1.txt",{2,2,1,0,2,0,0,0,0}) ) {
+        cout<<"Strongly Connected Components Test 2 Failed"<<endl;
+        return false;
+    }
+
+    if ( !testSCC("test_scc_2.txt",{13,10,9,8,7,5,16,15,2,11,14,4,12,1,6,3,0}) ) {
+        cout<<"Strongly Connected Components Test 3 Failed"<<endl;
+        return false;
+    }
+
+    if ( !testSCC("test_scc_3.txt",{1,0,2,5,4,3}) ) {
+        cout<<"Strongly Connected Components Test 4 Failed"<<endl;
+        return false;
+    }
+    
+    if ( !testSCC("test_scc_4.txt",{3,3,3,2,2,2,4,1,0}) ) {
+        cout<<"Strongly Connected Components Test 5 Failed"<<endl;
         return false;
     }
 
@@ -284,6 +322,10 @@ int main () {
 
     if ( !passed ) {
         cout<<"Tests have failed :("<<endl;
+    }
+
+    else {
+        cout << "ALL TESTS HAVE PASSED!"<<endl;
     }
 
 }
