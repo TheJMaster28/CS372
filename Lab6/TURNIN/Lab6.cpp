@@ -81,6 +81,7 @@ void explore ( Graph &G, Node &v, vector<size_t> &cc, size_t ccNum) {
     // set node to visted and previst time
     G.NodeSetVisted(v,true);
     G.NodeSetPre(v,++NodeClock);
+    // set what component number for the node in the index of the vector according to node id
     cc[v.id()] = ccNum;
     // get adjacent nodes
     list<Node> vAdjNodes = G.getAdjNodes(v);
@@ -114,6 +115,7 @@ void DFS_recursive(Graph &G) {
 
 vector < size_t > find_connected_components ( Graph & G ) {
 
+    // set up vector for component numbers
     vector < size_t > cc;
     cc.resize(G.num_nodes());
     size_t ccNum= 0;
@@ -128,6 +130,7 @@ vector < size_t > find_connected_components ( Graph & G ) {
     for ( size_t i = 0; i < G.num_nodes(); i++ ) {
         Node a = G.getNode(i);
         if ( !a.getVisted() ) {
+            // explores while adding onto vector
             explore(G, a,cc, ccNum++);
         }
     }
@@ -139,13 +142,16 @@ vector < size_t > find_connected_components ( Graph & G ) {
 
 
 Graph reverse ( Graph &G) {
+    // create graph like G
     Graph gR(G.getFileName());
 
+    // clear adjcent nodes
     for ( size_t i = 0; i < G.num_nodes(); i++ ) {
         // gR.addNode(G.getNode(i));
         gR.clearAdjNodes(G.getNode(i));
     }
 
+    // reverse edges by adjcent list from G to G^r
     for ( size_t i = 0; i < G.num_nodes(); i++ ) {
         Node v = G.getNode(i);
         list<Node> vAdjNodes = G.getAdjNodes(v);
@@ -159,20 +165,23 @@ Graph reverse ( Graph &G) {
 
 vector < size_t > find_strongly_connected_components ( Graph & G) {
     
+    // create and run DFS on reverse graph G^r
     Graph gR = reverse(G);
     DFS_recursive(gR);
     // cout <<gR;
 
+    // organize nodes by decreasing post Number
     vector < Node > orderPost;
-
     Node max;
     vector < Node > nodesList;
     nodesList.resize(gR.num_nodes());
 
+    // get nodes
     for ( size_t i = 0; i < gR.num_nodes(); i++ ) {
         nodesList[i] = gR.getNode(i);
     }
     
+    // find max post number and add it to order list and delete it
     for ( size_t i = 0; i < gR.num_nodes(); i++ ) { 
         max = nodesList[0];
         int place = 0;
@@ -202,6 +211,7 @@ vector < size_t > find_strongly_connected_components ( Graph & G) {
         G.NodeSetVisted(a,false);
     }
 
+    // do the same as CC, but on order of post numbers
     for ( size_t i = 0; i < orderPost.size(); i++ ) {
         Node a = G.getNode(orderPost[i].id());
         if ( !a.getVisted() ) {
@@ -220,7 +230,7 @@ void printVector( vector<size_t>  &a) {
     cout << endl;
 }
 
-
+// test Connected Components
 bool testCC(string s, vector<size_t> answer) {
     cout<<"Testing Connected Component "<<s<<endl;
     Graph g(s);
@@ -241,6 +251,7 @@ bool testCC(string s, vector<size_t> answer) {
     return true;
 }
 
+// test Strongly Connected Components
 bool testSCC(string s, vector<size_t> answer) {
 
     cout<<"Testing Strongly Connected Component "<<s<<endl;
