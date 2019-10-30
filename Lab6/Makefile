@@ -5,5 +5,7 @@ run:	all
 	./Lab6.exe
 clean:	
 	rm *_output.txt
+	rm *_node*.txt
+	rm *_edge*.txt
 
 fresh: all run clean
