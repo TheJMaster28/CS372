@@ -130,6 +130,10 @@ int main () {
 
 /*** R
 require("igraph")
+
+require("ggplot2")
+require("gridExtra")
+require("grid")
 library(ggplot2)
 library(gridExtra)
 library(grid)
@@ -282,8 +286,8 @@ dataNodes <- data.frame(
 
 
 pN <- ggplot(dataNodes, aes(x,runtime,group=graphType)) +
-    geom_point(color='red',aes( shape = graphType)) +
-    geom_line( color='red',aes( linetype = graphType) ) 
+    geom_point(color='blue',aes( shape = graphType)) +
+    geom_line( color='blue',aes( linetype = graphType) ) 
 pN <- pN + labs(x="Number of Nodes", y="Runtime(seconds)")
 pN <- pN + ggtitle("BFS on Function of Number of Nodes")
 
