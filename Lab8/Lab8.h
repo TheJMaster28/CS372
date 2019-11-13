@@ -54,7 +54,7 @@ class Graph {
                 // cout<<"Done with: "<<NewFileName<<endl;
             };
 
-        void addEdge ( const Node & a, const Node & b) {
+        void addEdge ( const Node & a, const Node & b, double weight) {
             list<Node> l = m_adjList[a.id()];
             l.push_back(b);
             m_adjList[a.id()] = l;
@@ -130,6 +130,7 @@ class Graph {
             ifstream myFile;
             myFile.open( file );
             string c1, c2;
+            double c3;
             size_t id = 0;
 
             // using hash table
@@ -174,7 +175,7 @@ class Graph {
                 myFile.open(file);
                 
                 // goes through file again and adds edges to the m_adjList vector
-                while ( myFile >> c1 >> c2) {
+                while ( myFile >> c1 >> c2 >> c3) {
                     
                     // find both nodes in hash table
                     unordered_map< string, size_t >::const_iterator nodeA = nodeMap.find(c1);
@@ -183,7 +184,7 @@ class Graph {
                     // get both nodes and add edge
                     Node a = getNode(nodeA->second);
                     Node b = getNode(nodeB->second);
-                    addEdge(a,b);
+                    addEdge(a,b, c3);
                 }
                 myFile.close();
             }
