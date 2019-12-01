@@ -140,7 +140,7 @@ class Graph {
             NodeSetPost(m_nodes[i], 0);
             NodeSetDistance(m_nodes[i], numeric_limits<double>::infinity());
         }
-        cout << "Resetting Graph...\n" << endl;
+        // cout << "Resetting Graph...\n" << endl;
     }
 
     void scan(const string &file) {
