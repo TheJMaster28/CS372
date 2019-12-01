@@ -83,6 +83,13 @@ class Graph {
         return m_adjList[a.id()];
     }
 
+    double getWeight(const Node &a, const Node &b) {
+        string ab = a.name() + "-" + b.name();
+        unordered_map<string, double>::const_iterator weight =
+            weightList.find(ab);
+        return weight->second;
+    }
+
     size_t num_nodes() const { return m_nodes.size(); }
 
     string NodeGetName(Node &a) { return getNode(a.id()).name(); }
