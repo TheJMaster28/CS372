@@ -43,10 +43,11 @@ class Node {
 class Graph {
    private:
     vector<Node> m_nodes;
-    vector<list<Node> > m_adjList;
+    vector<list<Node>> m_adjList;
     string fileName;
 
    public:
+    vector<vector<double>> weightArray;
     unordered_map<string, double> weightList;
 
     Graph(const string &file) {
@@ -57,13 +58,14 @@ class Graph {
         // cout<<"Done with: "<<NewFileName<<endl;
     };
 
-    void addEdge(const Node &a, const Node &b, double weight) {
+    void addEdge(Node &a, const Node &b, double weight) {
         list<Node> l = m_adjList[a.id()];
         l.push_back(b);
         m_adjList[a.id()] = l;
-        string ab = a.name() + "-" + b.name();
-        pair<string, double> abWeight(ab, weight);
-        weightList.insert(abWeight);
+        weightArray[a.id()][b.id()] = weight;
+        // string ab = a.name() + "-" + b.name();
+        // pair<string, double> abWeight(ab, weight);
+        // weightList.insert(abWeight);
     }
 
     string getFileName() { return fileName; }
@@ -84,10 +86,11 @@ class Graph {
     }
 
     double getWeight(const Node &a, const Node &b) {
-        string ab = a.name() + "-" + b.name();
-        unordered_map<string, double>::const_iterator weight =
-            weightList.find(ab);
-        return weight->second;
+        // string ab = a.name() + "-" + b.name();
+        // unordered_map<string, double>::const_iterator weight =
+        //     weightList.find(ab);
+        // return weight->second;
+        return weightArray[a.id()][b.id()];
     }
 
     size_t num_nodes() const { return m_nodes.size(); }
@@ -149,7 +152,7 @@ class Graph {
         string c1, c2;
         double c3;
         size_t id = 0;
-
+        int numberOfEdges = 0;
         // using hash table
         unordered_map<string, size_t> nodeMap;
         // unordered_map< string, string > edgeMap;
@@ -157,6 +160,7 @@ class Graph {
         if (myFile.is_open()) {
             // goes through file and adds nodes to a hash table
             while (myFile >> c1 >> c2 >> c3) {
+                numberOfEdges++;
                 // Find node to make sure it is not already found
                 unordered_map<string, size_t>::const_iterator nodeA =
                     nodeMap.find(c1);
@@ -180,11 +184,15 @@ class Graph {
             // allcated space
             m_nodes.resize(nodeMap.size());
             m_adjList.resize(nodeMap.size());
-
+            weightList.reserve(numberOfEdges);
+            weightArray.resize(nodeMap.size());
             // goes through hash table of nodes and adds them to m_nodes vector
+            int i = 0;
             for (pair<string, size_t> node : nodeMap) {
                 Node a(node.first, node.second);
+                weightArray[i].resize(nodeMap.size());
                 addNode(a);
+                i++;
             }
 
             // reopen file
@@ -222,10 +230,9 @@ class Graph {
             // goes through list and writes it to output file
             for (list<Node>::iterator k = bList.begin(); k != bList.end();
                  k++) {
-                unordered_map<string, double>::const_iterator weight =
-                    weightList.find(a.name() + "-" + k->name());
-                MyFile << a.name() << "\t" << k->name() << "\t"
-                       << weight->second << endl;
+                // unordered_map<string, double>::const_iterator weight = weightList.find(a.name() + "-" + k->name());
+                double weight = weightArray[a.id()][k->id()];
+                MyFile << a.name() << "\t" << k->name() << "\t" << weight << endl;
             }
         }
 

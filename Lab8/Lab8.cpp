@@ -77,7 +77,7 @@ void Dijkstra_heap(Graph &G, Node &s) {
 
 //[[Rcpp::export]]
 void test_List(string name) {
-    cout<<"Creating Graph for List"<<endl;
+    cout << "Creating Graph for List" << endl;
     Graph g(name);
     Node source = g.getNode(0);
     cout << "Start List" << endl;
@@ -87,12 +87,17 @@ void test_List(string name) {
 
 //[[Rcpp::export]]
 void test_Heap(string name) {
-    cout<<"Creating Graph for Heap"<<endl;
+    cout << "Creating Graph for Heap" << endl;
     Graph g(name);
     Node source = g.getNode(0);
     cout << "Start Heap" << endl;
     Dijkstra_heap(g, source);
     cout << "Done Heap" << endl;
+}
+
+//[[Rcpp::export]]
+void test_Graph(string name) {
+    Graph g(name);
 }
 
 bool test(string name, vector<double> answer) {
@@ -129,7 +134,7 @@ bool testall() {
     if (!test("test_1.txt", vector<double>{0, 2, 4, 3})) {
         return false;
     }
-    if (!test("test_2.txt", vector<double>{0, 120.58, infin(), infin()})) {
+    if (!test("test_2.txt", vector<double>{0, 120.58, infin(), infin(), infin(), infin()})) {
         return false;
     }
     if (!test("test_3.txt", vector<double>{0, 1, 7, 5})) {
@@ -146,7 +151,7 @@ int main() {
     if (!testall()) {
         cout << "Tests Failed" << endl;
     }
-    
+
     return 0;
 }
 
@@ -168,7 +173,7 @@ library(grid)
 graph.plot <- function(links, direct=T){
     net <- graph_from_data_frame( d=links, directed=direct  )
     is_weighted(net)
-    plot(net, vertex.size=30, vertex.label.cex=2)
+    plot(net, vertex.size=30, vertex.label.cex=2, edge.label= links$weight )
     
     return (NULL)
 }
@@ -242,16 +247,16 @@ numberNodes <- c( 2500,5000,7000,10000, 11000, 12000, 13000, 15000, 17000, 20000
 
 
 
-random.graph(numberNodes[1], 1000000, "test_node_1.txt")
-random.graph(numberNodes[2], 1000000, "test_node_2.txt")
-random.graph(numberNodes[3], 1000000, "test_node_3.txt")
-random.graph(numberNodes[4], 1000000, "test_node_4.txt")
-random.graph(numberNodes[5], 1000000, "test_node_5.txt")
-random.graph(numberNodes[6], 1000000, "test_node_6.txt")
-random.graph(numberNodes[7], 1000000, "test_node_7.txt")
-random.graph(numberNodes[8], 1000000, "test_node_8.txt")
-random.graph(numberNodes[9], 1000000, "test_node_9.txt")
-random.graph(numberNodes[10],1000000, "test_node_10.txt")
+random.graph(numberNodes[1], 100000, "test_node_1.txt")
+random.graph(numberNodes[2], 100000, "test_node_2.txt")
+random.graph(numberNodes[3], 100000, "test_node_3.txt")
+random.graph(numberNodes[4], 100000, "test_node_4.txt")
+random.graph(numberNodes[5], 100000, "test_node_5.txt")
+random.graph(numberNodes[6], 100000, "test_node_6.txt")
+random.graph(numberNodes[7], 100000, "test_node_7.txt")
+random.graph(numberNodes[8], 100000, "test_node_8.txt")
+random.graph(numberNodes[9], 100000, "test_node_9.txt")
+random.graph(numberNodes[10],100000, "test_node_10.txt")
 
 
 
@@ -294,7 +299,10 @@ fileNames <- c("test_edge_1.txt", "test_edge_2.txt", "test_edge_3.txt", "test_ed
 
 for ( i in 1:10 ) {
     
-    runtimeEdgeL[i] <- system.time(test_List(fileNames[i]))[["user.self"]]
+   
+    
+    runtimeEdgeL[i] <- system.time(test_List(fileNames[i]))[["user.self"]] 
+    
     runtimeEdgeH[i] <- system.time(test_Heap(fileNames[i]))[["user.self"]]
     
 }
