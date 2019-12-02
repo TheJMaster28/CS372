@@ -79,16 +79,18 @@ void Dijkstra_heap(Graph &G, Node &s) {
 void test_List(string name) {
     Graph g(name);
     Node source = g.getNode(0);
+    cout << "Start List" << endl;
     Dijkstra_list(g, source);
-    cout << "Done" << endl;
+    cout << "Done List" << endl;
 }
 
 //[[Rcpp::export]]
 void test_Heap(string name) {
     Graph g(name);
     Node source = g.getNode(0);
+    cout << "Start Heap" << endl;
     Dijkstra_heap(g, source);
-    cout << "Done" << endl;
+    cout << "Done Heap" << endl;
 }
 
 bool test(string name, vector<double> answer) {
@@ -162,7 +164,8 @@ library(grid)
 
 #Plot the data read from graph file.
 graph.plot <- function(links, direct=T){
-    net <- graph_from_data_frame( d=links, directed=direct )
+    net <- graph_from_data_frame( d=links, directed=direct  )
+    is_weighted(net)
     plot(net, vertex.size=30, vertex.label.cex=2)
     
     return (NULL)
@@ -172,7 +175,7 @@ graph.plot <- function(links, direct=T){
 graph.from.file <- function(input.file, plot=TRUE, direct=T){
     ##
     links <- read.table(input.file, header = FALSE, sep = '\t', quote = "", stringsAsFactors = FALSE)
-    colnames(links) <- c("from", "to")
+    colnames(links) <- c("from", "to", "weight")
     ##
     if(plot){
         graph.plot(links, direct)
@@ -237,16 +240,16 @@ numberNodes <- c( 2500,5000,7000,10000, 11000, 12000, 13000, 15000, 17000, 20000
 
 
 
-random.graph(numberNodes[1], 100000, "test_node_1.txt")
-random.graph(numberNodes[2], 100000, "test_node_2.txt")
-random.graph(numberNodes[3], 100000, "test_node_3.txt")
-random.graph(numberNodes[4], 100000, "test_node_4.txt")
-random.graph(numberNodes[5], 100000, "test_node_5.txt")
-random.graph(numberNodes[6], 100000, "test_node_6.txt")
-random.graph(numberNodes[7], 100000, "test_node_7.txt")
-random.graph(numberNodes[8], 100000, "test_node_8.txt")
-random.graph(numberNodes[9], 100000, "test_node_9.txt")
-random.graph(numberNodes[10],100000, "test_node_10.txt")
+random.graph(numberNodes[1], 1000000, "test_node_1.txt")
+random.graph(numberNodes[2], 1000000, "test_node_2.txt")
+random.graph(numberNodes[3], 1000000, "test_node_3.txt")
+random.graph(numberNodes[4], 1000000, "test_node_4.txt")
+random.graph(numberNodes[5], 1000000, "test_node_5.txt")
+random.graph(numberNodes[6], 1000000, "test_node_6.txt")
+random.graph(numberNodes[7], 1000000, "test_node_7.txt")
+random.graph(numberNodes[8], 1000000, "test_node_8.txt")
+random.graph(numberNodes[9], 1000000, "test_node_9.txt")
+random.graph(numberNodes[10],1000000, "test_node_10.txt")
 
 
 
@@ -309,39 +312,39 @@ graph.from.file("test_4.txt", plot=TRUE, direct=T)
 
 
 dataNodes <- data.frame(
-    runtime = c(runtimeNode),
-    graphType = c(rep(c("Node Runtime"), each=5)), 
-    x = c(numberNodes)
+    numberOfNodes = numberNodes,
+    graphType = c(rep(c("List"), each=10) , rep(c("Heap"), each=10)),
+    runtime = c(runtimeNodeL, runtimeNodeH)
     
 )
 
 
 
 
-pN <- ggplot(dataNodes, aes(x,runtime,group=graphType)) +
-    geom_point(color='blue',aes( shape = graphType)) +
-    geom_line( color='blue',aes( linetype = graphType) ) 
-pN <- pN + labs(x="Number of Nodes", y="Runtime(seconds)")
-pN <- pN + ggtitle("BFS on Function of Number of Nodes")
+pN <- ggplot(dataNodes, aes(numberOfNodes,runtime,group=graphType)) +
+    geom_point(aes( color = graphType )) +
+    geom_line( aes( color=graphType,linetype = graphType) ) 
+pN <- pN + labs(numberOfNodes="Number of Nodes", y="Runtime(seconds)")
+pN <- pN + ggtitle("Dijkstra Algorthim on Function of Nodes")
 
 
 grid.arrange(pN, nrow=1)
 
 
 dataEdges <- data.frame(
-    runtime = c(runtimeEdge),
-    graphType = c(rep(c("Edge Runtime"), each=5)),
-    x = c(numberOfEdges)
+  numberOfEdges = numberOfEdges,
+  graphType = c(rep(c("List"), each=10) , rep(c("Heap"), each=10)),
+  runtime = c(runtimeEdgeL, runtimeEdgeH)
     
 )
 
 
 
-pE <- ggplot(dataEdges, aes(x,runtime,group=graphType)) +
-    geom_point(color='red', aes(shape = graphType)) +
-    geom_line( color='red', aes( linetype = graphType)) 
-pE <- pE + labs(x="Number of Edges", y="Runtime(seconds)")
-pE <- pE + ggtitle("BFS on Function on Number of Edges")
+pE <- ggplot(dataEdges, aes(numberOfEdges,runtime,group=graphType)) +
+    geom_point( aes(color = graphType)) +
+    geom_line( aes( color = graphType,linetype = graphType)) 
+pE <- pE + labs(numberOfEdges="Number of Edges", y="Runtime(seconds)")
+pE <- pE + ggtitle("Dijkstra Algorthim on Function of Edges")
 
 
 grid.arrange(pE, nrow=1)
