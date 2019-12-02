@@ -4,8 +4,8 @@ all:
 run:	all
 	./Lab8.exe
 clean:	
-	rm *_output.txt
 	rm *_node*.txt
 	rm *_edge*.txt
+	rm *_output.txt
 
 fresh: all run clean

@@ -15,10 +15,17 @@ class BinaryHeap {
     unordered_map<string, int> keyIndex;
 
    public:
-    BinaryHeap(int cap) {
-        arr.resize(cap);
+    BinaryHeap(Graph &G) {
         heap_size = 0;
-        capacity = cap;
+        arr.resize(G.num_nodes());
+        for (size_t i = 0; i < G.num_nodes(); i++) {
+            Node a = G.getNode(i);
+            arr[i] = a;
+            keyIndex.insert(pair<string, int>(a.name(), i));
+        }
+        for (size_t i = arr.size(); i > arr.size(); i--) {
+            shiftDown(i);
+        }
     }
 
     bool empty() {
@@ -33,6 +40,13 @@ class BinaryHeap {
     int left(int index) { return 2 * index + 1; }
 
     int right(int index) { return 2 * index + 2; }
+
+    BinaryHeap make_Heap(Graph &G) {
+        // for (size_t i = 0; i < G.num_nodes(); i++) {
+        //     Node a = G.getNode(i);
+        //     H.insertKey(a);
+        // }
+    }
 
     int getIndex(Node &a) {
         unordered_map<string, int>::iterator key = keyIndex.find(a.name());
@@ -53,7 +67,7 @@ class BinaryHeap {
         key->second = aIndex;
     }
 
-    void Heapify(int index) {
+    int minChild(int index) {
         int l = left(index);
         int r = right(index);
         int smallest = index;
@@ -65,12 +79,22 @@ class BinaryHeap {
         if (r < heap_size && arr[r].getDistance() < arr[smallest].getDistance()) {
             smallest = r;
         }
+        return smallest;
+    }
+    void shiftDown(int index) {
+        // if (smallest != index) {
+        //     swap(arr[index], arr[smallest]);
 
-        if (smallest != index) {
-            swap(arr[index], arr[smallest]);
-
-            Heapify(smallest);
+        //     Heapify(smallest);
+        // }
+        Node a = arr[index];
+        int minChildIndex = minChild(index);
+        while (minChildIndex != 0 && arr[minChildIndex].getDistance() < arr[index].getDistance()) {
+            swap(arr[index], arr[minChildIndex]);
+            index = minChildIndex;
+            a = arr[index];
         }
+        arr[index] = a;
     }
 
     void insertKey(Node &a) {
@@ -103,7 +127,7 @@ class BinaryHeap {
         arr[0] = arr[heap_size];
         unordered_map<string, int>::iterator key = keyIndex.find(arr[0].name());
         key->second = 0;
-        Heapify(0);
+        shiftDown(0);
         return root;
     }
 };

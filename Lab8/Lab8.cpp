@@ -48,21 +48,10 @@ void Dijkstra_list(Graph &G, Node &s) {
     }
 }
 
-BinaryHeap make_Heap(Graph &G) {
-    BinaryHeap H(G.num_nodes());
-
-    for (size_t i = 0; i < G.num_nodes(); i++) {
-        Node a = G.getNode(i);
-        H.insertKey(a);
-    }
-    return H;
-}
-
 void Dijkstra_heap(Graph &G, Node &s) {
     G.Reset();
     distance(s, G, 0);
-    BinaryHeap H = make_Heap(G);
-
+    BinaryHeap H(G);
     while (!H.empty()) {
         Node u = H.deletMin();
         for (Node v : G.getAdjNodes(u)) {
@@ -247,16 +236,16 @@ numberNodes <- c( 2500,5000,7000,10000, 11000, 12000, 13000, 15000, 17000, 20000
 
 
 
-random.graph(numberNodes[1], 100000, "test_node_1.txt")
-random.graph(numberNodes[2], 100000, "test_node_2.txt")
-random.graph(numberNodes[3], 100000, "test_node_3.txt")
-random.graph(numberNodes[4], 100000, "test_node_4.txt")
-random.graph(numberNodes[5], 100000, "test_node_5.txt")
-random.graph(numberNodes[6], 100000, "test_node_6.txt")
-random.graph(numberNodes[7], 100000, "test_node_7.txt")
-random.graph(numberNodes[8], 100000, "test_node_8.txt")
-random.graph(numberNodes[9], 100000, "test_node_9.txt")
-random.graph(numberNodes[10],100000, "test_node_10.txt")
+random.graph(numberNodes[1], 1000000, "test_node_1.txt")
+random.graph(numberNodes[2], 1000000, "test_node_2.txt")
+random.graph(numberNodes[3], 1000000, "test_node_3.txt")
+random.graph(numberNodes[4], 1000000, "test_node_4.txt")
+random.graph(numberNodes[5], 1000000, "test_node_5.txt")
+random.graph(numberNodes[6], 1000000, "test_node_6.txt")
+random.graph(numberNodes[7], 1000000, "test_node_7.txt")
+random.graph(numberNodes[8], 1000000, "test_node_8.txt")
+random.graph(numberNodes[9], 1000000, "test_node_9.txt")
+random.graph(numberNodes[10],1000000, "test_node_10.txt")
 
 
 
