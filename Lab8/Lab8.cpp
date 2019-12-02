@@ -77,6 +77,7 @@ void Dijkstra_heap(Graph &G, Node &s) {
 
 //[[Rcpp::export]]
 void test_List(string name) {
+    cout<<"Creating Graph for List"<<endl;
     Graph g(name);
     Node source = g.getNode(0);
     cout << "Start List" << endl;
@@ -86,6 +87,7 @@ void test_List(string name) {
 
 //[[Rcpp::export]]
 void test_Heap(string name) {
+    cout<<"Creating Graph for Heap"<<endl;
     Graph g(name);
     Node source = g.getNode(0);
     cout << "Start Heap" << endl;
@@ -144,7 +146,7 @@ int main() {
     if (!testall()) {
         cout << "Tests Failed" << endl;
     }
-
+    
     return 0;
 }
 
