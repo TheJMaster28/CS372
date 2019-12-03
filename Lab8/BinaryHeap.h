@@ -9,15 +9,15 @@ using namespace std;
 
 class BinaryHeap {
    private:
-    int capacity;
     int heap_size;
     vector<Node> arr;
     unordered_map<string, int> keyIndex;
 
    public:
+    // creates Binary Heap from Graph
     BinaryHeap(Graph &G) {
-        heap_size = 0;
         arr.resize(G.num_nodes());
+        heap_size = arr.size();
         for (size_t i = 0; i < G.num_nodes(); i++) {
             Node a = G.getNode(i);
             arr[i] = a;
@@ -28,6 +28,7 @@ class BinaryHeap {
         }
     }
 
+    // checks if heap is empty
     bool empty() {
         if (heap_size == 0) {
             return true;
@@ -35,24 +36,22 @@ class BinaryHeap {
         return false;
     }
 
+    // gets parent node index
     int parent(int index) { return (index - 1) / 2; }
 
+    // gets left child index
     int left(int index) { return 2 * index + 1; }
 
+    // gets right child index
     int right(int index) { return 2 * index + 2; }
 
-    BinaryHeap make_Heap(Graph &G) {
-        // for (size_t i = 0; i < G.num_nodes(); i++) {
-        //     Node a = G.getNode(i);
-        //     H.insertKey(a);
-        // }
-    }
-
+    // gets index of a node from hash table
     int getIndex(Node &a) {
         unordered_map<string, int>::iterator key = keyIndex.find(a.name());
         return key->second;
     }
 
+    // swap two nodes in heap
     void swap(Node a, Node b) {
         int aIndex = getIndex(a);
         int bIndex = getIndex(b);
@@ -67,10 +66,15 @@ class BinaryHeap {
         key->second = aIndex;
     }
 
+    // gets minuim child from parent index
     int minChild(int index) {
         int l = left(index);
         int r = right(index);
         int smallest = index;
+
+        if (l > heap_size || r > heap_size) {
+            return -1;
+        }
 
         if (l < heap_size && arr[l].getDistance() < arr[smallest].getDistance()) {
             smallest = l;
@@ -81,25 +85,22 @@ class BinaryHeap {
         }
         return smallest;
     }
-    void shiftDown(int index) {
-        // if (smallest != index) {
-        //     swap(arr[index], arr[smallest]);
 
-        //     Heapify(smallest);
-        // }
-        Node a = arr[index];
+    // shifts down element at given index
+    void shiftDown(int index) {
         int minChildIndex = minChild(index);
-        while (minChildIndex != 0 && arr[minChildIndex].getDistance() < arr[index].getDistance()) {
+        while (minChildIndex != 0 && minChildIndex > 0 && arr[minChildIndex].getDistance() < arr[index].getDistance()) {
             swap(arr[index], arr[minChildIndex]);
             index = minChildIndex;
-            a = arr[index];
+            minChildIndex = minChild(index);
         }
-        arr[index] = a;
     }
 
+    // inserts new element
     void insertKey(Node &a) {
         heap_size++;
         int index = heap_size - 1;
+        arr.resize(heap_size);
         arr[index] = a;
         keyIndex.insert(pair<string, int>(a.name(), index));
         while (index != 0 && arr[parent(index)].getDistance() > arr[index].getDistance()) {
@@ -108,6 +109,7 @@ class BinaryHeap {
         }
     }
 
+    // updates key with new value
     void decreseKey(int index, double newValue) {
         arr[index].setDistance(newValue);
         while (index != 0 && arr[parent(index)].getDistance() > arr[index].getDistance()) {
@@ -116,6 +118,7 @@ class BinaryHeap {
         }
     }
 
+    // takes out root node and shits down elements
     Node deletMin() {
         if (heap_size == 1) {
             heap_size--;

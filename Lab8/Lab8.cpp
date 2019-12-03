@@ -3,12 +3,16 @@
 
 // [[Rcpp::plugins(cpp11)]]
 
+// returns infinity
 double infin() { return numeric_limits<double>::infinity(); }
 
+// gets node distance
 double distance(Node &a, Graph &G) { return G.NodeGetDistance(a); }
 
+// sets nodes distnace
 void distance(Node &a, Graph &G, double dis) { G.NodeSetDistance(a, dis); }
 
+// creates priorty queue with a list
 list<Node> make_Queue(Graph &G) {
     list<Node> Pqueue;
     for (size_t i = 0; i < G.num_nodes(); i++) {
@@ -17,11 +21,11 @@ list<Node> make_Queue(Graph &G) {
     return Pqueue;
 }
 
+// gets Minium distance from list
 Node deleteMin(list<Node> &H, Graph &G) {
     list<Node>::iterator minN;
     double min = infin();
 
-    // list<Node>::iterator k = bList.begin(); k != bList.end(); k++
     for (list<Node>::iterator a = H.begin(); a != H.end(); a++) {
         if (min >= distance(*a, G)) {
             min = distance(*a, G);
@@ -33,6 +37,7 @@ Node deleteMin(list<Node> &H, Graph &G) {
     return *minN;
 }
 
+// does Dijkstra's Algorthim with a list as its priotry queue
 void Dijkstra_list(Graph &G, Node &s) {
     G.Reset();
     distance(s, G, 0);
@@ -48,6 +53,7 @@ void Dijkstra_list(Graph &G, Node &s) {
     }
 }
 
+// does Dijkstra's Algorthim with a heap as its priotry queue
 void Dijkstra_heap(Graph &G, Node &s) {
     G.Reset();
     distance(s, G, 0);
@@ -66,22 +72,16 @@ void Dijkstra_heap(Graph &G, Node &s) {
 
 //[[Rcpp::export]]
 void test_List(string name) {
-    cout << "Creating Graph for List" << endl;
     Graph g(name);
     Node source = g.getNode(0);
-    cout << "Start List" << endl;
     Dijkstra_list(g, source);
-    cout << "Done List" << endl;
 }
 
 //[[Rcpp::export]]
 void test_Heap(string name) {
-    cout << "Creating Graph for Heap" << endl;
     Graph g(name);
     Node source = g.getNode(0);
-    cout << "Start Heap" << endl;
     Dijkstra_heap(g, source);
-    cout << "Done Heap" << endl;
 }
 
 //[[Rcpp::export]]
@@ -123,7 +123,7 @@ bool testall() {
     if (!test("test_1.txt", vector<double>{0, 2, 4, 3})) {
         return false;
     }
-    if (!test("test_2.txt", vector<double>{0, 120.58, infin(), infin(), infin(), infin()})) {
+    if (!test("test_2.txt", vector<double>{0, 35, 13, 1, 2, 8, infin(), infin(), infin()})) {
         return false;
     }
     if (!test("test_3.txt", vector<double>{0, 1, 7, 5})) {
@@ -232,7 +232,7 @@ if ( !testall() ) {
 }
 
 
-numberNodes <- c( 2500,5000,7000,10000, 11000, 12000, 13000, 15000, 17000, 20000  )
+numberNodes <- c( 2500,5000,7000,10000, 12500, 15000, 30000, 50000, 75000, 100000  )
 
 
 

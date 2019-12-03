@@ -45,26 +45,23 @@ class Graph {
     vector<Node> m_nodes;
     vector<list<Node>> m_adjList;
     string fileName;
-
-   public:
-    // vector<vector<double>> weightArray;
+    // hash table of all weights for each edge
     unordered_map<string, double> weightList;
 
+   public:
     Graph(const string &file) {
         fileName = file;
-        cout<<"Scan File "<<fileName<<endl;
         scan(file);
         string NewFileName = file.substr(0, (file.size() - 4));
-        // cout<<"Save File"<<endl;
+        // not longer need to save file, saves runtime on larger graphs
         // save(NewFileName.append("_output.txt"));
-        // cout<<"Done with: "<<NewFileName<<endl;
     };
 
+    // add edge with weights now
     void addEdge(Node &a, const Node &b, double weight) {
         list<Node> l = m_adjList[a.id()];
         l.push_back(b);
         m_adjList[a.id()] = l;
-        // weightArray[a.id()][b.id()] = weight;
         string ab = a.name() + "-" + b.name();
         pair<string, double> abWeight(ab, weight);
         weightList.insert(abWeight);
@@ -87,11 +84,11 @@ class Graph {
         return m_adjList[a.id()];
     }
 
+    // get weight from hash table to make it consant time
     const double getWeight(const Node &a, const Node &b) const {
         string ab = a.name() + "-" + b.name();
         unordered_map<string, double>::const_iterator weight = weightList.find(ab);
         return weight->second;
-        // return weightArray[a.id()][b.id()];
     }
 
     size_t num_nodes() const { return m_nodes.size(); }
@@ -130,13 +127,6 @@ class Graph {
         addNode(node);
     }
 
-    // double GetWeight(Node &a, Node &b) const {
-    //     string ab = a.name() + "-" + b.name();
-    //     unordered_map<string, double>::const_iterator weight =
-    //         weightList.find(ab);
-    //     return weight->second;
-    // }
-
     void Reset() {
         for (size_t i = 0; i < m_nodes.size(); i++) {
             NodeSetVisted(m_nodes[i], false);
@@ -144,7 +134,6 @@ class Graph {
             NodeSetPost(m_nodes[i], 0);
             NodeSetDistance(m_nodes[i], numeric_limits<double>::infinity());
         }
-        // cout << "Resetting Graph...\n" << endl;
     }
 
     void scan(const string &file) {
@@ -156,11 +145,9 @@ class Graph {
         int numberOfEdges = 0;
         // using hash table
         unordered_map<string, size_t> nodeMap;
-        // unordered_map< string, string > edgeMap;
 
         if (myFile.is_open()) {
             // goes through file and adds nodes to a hash table
-            cout<<"\tFinds Nodes"<<endl;
             while (myFile >> c1 >> c2 >> c4) {
                 numberOfEdges++;
                 // Find node to make sure it is not already found
@@ -191,10 +178,8 @@ class Graph {
             // weightArray.resize(nodeMap.size());
             // goes through hash table of nodes and adds them to m_nodes vector
             int i = 0;
-            cout<<"\tMaps Nodes"<<endl;
             for (pair<string, size_t> node : nodeMap) {
                 Node a(node.first, node.second);
-                // weightArray[i].resize(nodeMap.size());
                 addNode(a);
                 i++;
             }
@@ -204,7 +189,6 @@ class Graph {
             myFile.open(file);
 
             // goes through file again and adds edges to the m_adjList vector
-            cout<<"\tAdds Edges"<<endl;
             while (myFile >> c1 >> c2 >> c4) {
                 // find both nodes in hash table
                 unordered_map<string, size_t>::const_iterator nodeA =
@@ -234,8 +218,7 @@ class Graph {
             list<Node> bList = getAdjNodes(a);
 
             // goes through list and writes it to output file
-            for (list<Node>::iterator k = bList.begin(); k != bList.end();
-                 k++) {
+            for (list<Node>::iterator k = bList.begin(); k != bList.end(); k++) {
                 unordered_map<string, double>::const_iterator weight = weightList.find(a.name() + "-" + k->name());
                 // double weight = weightArray[a.id()][k->id()];
                 MyFile << a.name() << "\t" << k->name() << "\t" << weight->second << endl;
@@ -250,17 +233,14 @@ std::ostream &operator<<(std::ostream &out, const Graph &g) {
     out << "Nodes in the graph:" << endl;
     for (unsigned i = 0; i < g.num_nodes(); i++) {
         Node a = g.getNode(i);
-        out << a.name() << " Pre: " << a.getPre() << " Post: " << a.getPost()
-            << " Distance: " << a.getDistance() << endl;
+        out << a.name() << " Pre: " << a.getPre() << " Post: " << a.getPost() << " Distance: " << a.getDistance() << endl;
     }
     out << endl;
     out << "Adjacency list of the graph :" << endl;
     for (unsigned i = 0; i < g.num_nodes(); i++) {
-        out << "Node " << g.getNode(i).name() << ", ID:" << g.getNode(i).id()
-            << ": ";
+        out << "Node " << g.getNode(i).name() << ", ID:" << g.getNode(i).id() << ": ";
         const list<Node> neighbors = g.getAdjNodes(g.getNode(i));
-        for (list<Node>::const_iterator itr = neighbors.begin();
-             itr != neighbors.end(); ++itr) {
+        for (list<Node>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr) {
             Node a = g.getNode(i);
             Node b = *itr;
             double weight = g.getWeight(a, b);
