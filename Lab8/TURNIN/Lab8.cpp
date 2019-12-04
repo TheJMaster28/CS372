@@ -133,6 +133,10 @@ bool testall() {
         return false;
     }
 
+    // if (!test("neg.txt", vector<double>{0, 5, 2})) {
+    //     return false;
+    // }
+
     return true;
 }
 
@@ -264,7 +268,7 @@ for ( i in 1:10 ) {
 
 
 
-numberOfEdges <- c(125000,250000,300000, 400000, 500000,600000, 650000, 750000, 850000, 1000000 )
+numberOfEdges <-  c(125000,250000,300000, 400000, 500000,600000, 650000, 750000, 850000, 1000000 )
 
 
 
