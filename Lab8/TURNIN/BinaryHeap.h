@@ -72,9 +72,9 @@ class BinaryHeap {
         int r = right(index);
         int smallest = index;
 
-        if (l > heap_size || r > heap_size) {
-            return -1;
-        }
+        // if (l > heap_size || r > heap_size) {
+        //     return -1;
+        // }
 
         if (l < heap_size && arr[l].getDistance() < arr[smallest].getDistance()) {
             smallest = l;
@@ -86,10 +86,17 @@ class BinaryHeap {
         return smallest;
     }
 
+    void bubbleUp(int index) {
+        while (index != 0 && arr[parent(index)].getDistance() > arr[index].getDistance()) {
+            swap(arr[index], arr[parent(index)]);
+            index = parent(index);
+        }
+    }
+
     // shifts down element at given index
     void shiftDown(int index) {
         int minChildIndex = minChild(index);
-        while (minChildIndex != 0 && minChildIndex > 0 && arr[minChildIndex].getDistance() < arr[index].getDistance()) {
+        while (minChildIndex != 0 && arr[minChildIndex].getDistance() < arr[index].getDistance()) {
             swap(arr[index], arr[minChildIndex]);
             index = minChildIndex;
             minChildIndex = minChild(index);
@@ -103,19 +110,13 @@ class BinaryHeap {
         arr.resize(heap_size);
         arr[index] = a;
         keyIndex.insert(pair<string, int>(a.name(), index));
-        while (index != 0 && arr[parent(index)].getDistance() > arr[index].getDistance()) {
-            swap(arr[index], arr[parent(index)]);
-            index = parent(index);
-        }
+        bubbleUp(index);
     }
 
     // updates key with new value
     void decreseKey(int index, double newValue) {
         arr[index].setDistance(newValue);
-        while (index != 0 && arr[parent(index)].getDistance() > arr[index].getDistance()) {
-            swap(arr[index], arr[parent(index)]);
-            index = parent(index);
-        }
+        bubbleUp(index);
     }
 
     // takes out root node and shits down elements

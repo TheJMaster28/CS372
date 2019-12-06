@@ -32,9 +32,10 @@ Node deleteMin(list<Node> &H, Graph &G) {
             minN = a;
         }
     }
-
+    Node a = *minN;
+    /// dangerous!!!
     H.erase(minN);
-    return *minN;
+    return a;
 }
 
 // does Dijkstra's Algorthim with a list as its priotry queue
